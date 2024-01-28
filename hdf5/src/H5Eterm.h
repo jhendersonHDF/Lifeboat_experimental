@@ -61,7 +61,6 @@
 H5E_first_maj_id_g = H5I_INVALID_HID;
 H5E_last_maj_id_g = H5I_INVALID_HID;
 
-
 /* Reset minor error IDs */
 
 /* ARGS: Argument errors */

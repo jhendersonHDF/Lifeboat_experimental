@@ -192,6 +192,47 @@ H5E_last_maj_id_g = H5E_VOL_g;
 /*********************/
 
 
+/* Datatype conversion errors */
+assert(H5E_CANTCONVERT_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Can't convert datatypes"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed");
+if((H5E_CANTCONVERT_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message");
+assert(H5E_BADSIZE_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Bad size for object"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed");
+if((H5E_BADSIZE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message");
+
+/* Map related errors */
+assert(H5E_CANTPUT_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Can't put value"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed");
+if((H5E_CANTPUT_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message");
+
+/* Property list errors */
+assert(H5E_CANTGET_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Can't get value"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed");
+if((H5E_CANTGET_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message");
+assert(H5E_CANTSET_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Can't set value"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed");
+if((H5E_CANTSET_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message");
+assert(H5E_DUPCLASS_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Duplicate class name in parent class"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed");
+if((H5E_DUPCLASS_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message");
+assert(H5E_SETDISALLOWED_g==(-1));
+if((msg = H5E__create_msg(cls, H5E_MINOR, "Disallowed operation"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed");
+if((H5E_SETDISALLOWED_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message");
+
 /* Argument errors */
 /* H5E_BADRANGE */
 assert(H5I_INVALID_HID == H5E_BADRANGE_g);

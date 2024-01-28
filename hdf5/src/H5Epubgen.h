@@ -107,6 +107,26 @@ H5_DLLVAR hid_t H5E_VOL_g;           /* Virtual Object Layer */
 /* Minor error codes */
 /*********************/
 
+/* Datatype conversion errors */
+#define H5E_CANTCONVERT      (H5OPEN H5E_CANTCONVERT_g)
+#define H5E_BADSIZE          (H5OPEN H5E_BADSIZE_g)
+H5_DLLVAR hid_t H5E_CANTCONVERT_g;   /* Can't convert datatypes */
+H5_DLLVAR hid_t H5E_BADSIZE_g;       /* Bad size for object */
+
+/* Map related errors */
+#define H5E_CANTPUT          (H5OPEN H5E_CANTPUT_g)
+H5_DLLVAR hid_t H5E_CANTPUT_g;       /* Can't put value */
+
+/* Property list errors */
+#define H5E_CANTGET          (H5OPEN H5E_CANTGET_g)
+#define H5E_CANTSET          (H5OPEN H5E_CANTSET_g)
+#define H5E_DUPCLASS         (H5OPEN H5E_DUPCLASS_g)
+#define H5E_SETDISALLOWED    (H5OPEN H5E_SETDISALLOWED_g)
+H5_DLLVAR hid_t H5E_CANTGET_g;       /* Can't get value */
+H5_DLLVAR hid_t H5E_CANTSET_g;       /* Can't set value */
+H5_DLLVAR hid_t H5E_DUPCLASS_g;      /* Duplicate class name in parent class */
+H5_DLLVAR hid_t H5E_SETDISALLOWED_g; /* Disallowed operation */
+
 /* Argument errors */
 #define H5E_BADRANGE         (H5OPEN H5E_BADRANGE_g)
 #define H5E_BADTYPE          (H5OPEN H5E_BADTYPE_g)
