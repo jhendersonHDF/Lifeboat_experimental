@@ -453,6 +453,178 @@ H5_DLLVAR hid_t H5E_SYSERRSTR_g;     /* System error message */
 H5_DLLVAR hid_t H5E_BADSIZE_g;       /* Bad size for object */
 H5_DLLVAR hid_t H5E_CANTCONVERT_g;   /* Can't convert datatypes */
 
+/* B-tree related errors */
+#define H5E_NOTFOUND         (H5OPEN H5E_NOTFOUND_g)
+#define H5E_EXISTS           (H5OPEN H5E_EXISTS_g)
+#define H5E_CANTENCODE       (H5OPEN H5E_CANTENCODE_g)
+#define H5E_CANTDECODE       (H5OPEN H5E_CANTDECODE_g)
+#define H5E_CANTSPLIT        (H5OPEN H5E_CANTSPLIT_g)
+#define H5E_CANTREDISTRIBUTE (H5OPEN H5E_CANTREDISTRIBUTE_g)
+#define H5E_CANTSWAP         (H5OPEN H5E_CANTSWAP_g)
+#define H5E_CANTINSERT       (H5OPEN H5E_CANTINSERT_g)
+#define H5E_CANTLIST         (H5OPEN H5E_CANTLIST_g)
+#define H5E_CANTMODIFY       (H5OPEN H5E_CANTMODIFY_g)
+#define H5E_CANTREMOVE       (H5OPEN H5E_CANTREMOVE_g)
+#define H5E_CANTFIND         (H5OPEN H5E_CANTFIND_g)
+H5_DLLVAR hid_t H5E_NOTFOUND_g;      /* Object not found */
+H5_DLLVAR hid_t H5E_EXISTS_g;        /* Object already exists */
+H5_DLLVAR hid_t H5E_CANTENCODE_g;    /* Unable to encode value */
+H5_DLLVAR hid_t H5E_CANTDECODE_g;    /* Unable to decode value */
+H5_DLLVAR hid_t H5E_CANTSPLIT_g;     /* Unable to split node */
+H5_DLLVAR hid_t H5E_CANTREDISTRIBUTE_g; /* Unable to redistribute records */
+H5_DLLVAR hid_t H5E_CANTSWAP_g;      /* Unable to swap records */
+H5_DLLVAR hid_t H5E_CANTINSERT_g;    /* Unable to insert object */
+H5_DLLVAR hid_t H5E_CANTLIST_g;      /* Unable to list node */
+H5_DLLVAR hid_t H5E_CANTMODIFY_g;    /* Unable to modify record */
+H5_DLLVAR hid_t H5E_CANTREMOVE_g;    /* Unable to remove object */
+H5_DLLVAR hid_t H5E_CANTFIND_g;      /* Unable to check for record */
+
+/* Object header related errors */
+#define H5E_LINKCOUNT        (H5OPEN H5E_LINKCOUNT_g)
+#define H5E_VERSION          (H5OPEN H5E_VERSION_g)
+#define H5E_ALIGNMENT        (H5OPEN H5E_ALIGNMENT_g)
+#define H5E_BADMESG          (H5OPEN H5E_BADMESG_g)
+#define H5E_CANTDELETE       (H5OPEN H5E_CANTDELETE_g)
+#define H5E_BADITER          (H5OPEN H5E_BADITER_g)
+#define H5E_CANTPACK         (H5OPEN H5E_CANTPACK_g)
+#define H5E_CANTRESET        (H5OPEN H5E_CANTRESET_g)
+#define H5E_CANTRENAME       (H5OPEN H5E_CANTRENAME_g)
+H5_DLLVAR hid_t H5E_LINKCOUNT_g;     /* Bad object header link count */
+H5_DLLVAR hid_t H5E_VERSION_g;       /* Wrong version number */
+H5_DLLVAR hid_t H5E_ALIGNMENT_g;     /* Alignment error */
+H5_DLLVAR hid_t H5E_BADMESG_g;       /* Unrecognized message */
+H5_DLLVAR hid_t H5E_CANTDELETE_g;    /* Can't delete message */
+H5_DLLVAR hid_t H5E_BADITER_g;       /* Iteration failed */
+H5_DLLVAR hid_t H5E_CANTPACK_g;      /* Can't pack messages */
+H5_DLLVAR hid_t H5E_CANTRESET_g;     /* Can't reset object */
+H5_DLLVAR hid_t H5E_CANTRENAME_g;    /* Unable to rename object */
+
+/* Resource errors */
+#define H5E_NOSPACE          (H5OPEN H5E_NOSPACE_g)
+#define H5E_CANTALLOC        (H5OPEN H5E_CANTALLOC_g)
+#define H5E_CANTCOPY         (H5OPEN H5E_CANTCOPY_g)
+#define H5E_CANTFREE         (H5OPEN H5E_CANTFREE_g)
+#define H5E_ALREADYEXISTS    (H5OPEN H5E_ALREADYEXISTS_g)
+#define H5E_CANTLOCK         (H5OPEN H5E_CANTLOCK_g)
+#define H5E_CANTUNLOCK       (H5OPEN H5E_CANTUNLOCK_g)
+#define H5E_CANTGC           (H5OPEN H5E_CANTGC_g)
+#define H5E_CANTGETSIZE      (H5OPEN H5E_CANTGETSIZE_g)
+#define H5E_OBJOPEN          (H5OPEN H5E_OBJOPEN_g)
+H5_DLLVAR hid_t H5E_NOSPACE_g;       /* No space available for allocation */
+H5_DLLVAR hid_t H5E_CANTALLOC_g;     /* Can't allocate space */
+H5_DLLVAR hid_t H5E_CANTCOPY_g;      /* Unable to copy object */
+H5_DLLVAR hid_t H5E_CANTFREE_g;      /* Unable to free object */
+H5_DLLVAR hid_t H5E_ALREADYEXISTS_g; /* Object already exists */
+H5_DLLVAR hid_t H5E_CANTLOCK_g;      /* Unable to lock object */
+H5_DLLVAR hid_t H5E_CANTUNLOCK_g;    /* Unable to unlock object */
+H5_DLLVAR hid_t H5E_CANTGC_g;        /* Unable to garbage collect */
+H5_DLLVAR hid_t H5E_CANTGETSIZE_g;   /* Unable to compute size */
+H5_DLLVAR hid_t H5E_OBJOPEN_g;       /* Object is already open */
+
+/* Parallel MPI errors */
+#define H5E_MPI              (H5OPEN H5E_MPI_g)
+#define H5E_MPIERRSTR        (H5OPEN H5E_MPIERRSTR_g)
+#define H5E_CANTRECV         (H5OPEN H5E_CANTRECV_g)
+#define H5E_CANTGATHER       (H5OPEN H5E_CANTGATHER_g)
+#define H5E_NO_INDEPENDENT   (H5OPEN H5E_NO_INDEPENDENT_g)
+H5_DLLVAR hid_t H5E_MPI_g;           /* Some MPI function failed */
+H5_DLLVAR hid_t H5E_MPIERRSTR_g;     /* MPI Error String */
+H5_DLLVAR hid_t H5E_CANTRECV_g;      /* Can't receive data */
+H5_DLLVAR hid_t H5E_CANTGATHER_g;    /* Can't gather data */
+H5_DLLVAR hid_t H5E_NO_INDEPENDENT_g; /* Can't perform independent IO */
+
+/* Generic low-level file I/O errors */
+#define H5E_SEEKERROR        (H5OPEN H5E_SEEKERROR_g)
+#define H5E_READERROR        (H5OPEN H5E_READERROR_g)
+#define H5E_WRITEERROR       (H5OPEN H5E_WRITEERROR_g)
+#define H5E_CLOSEERROR       (H5OPEN H5E_CLOSEERROR_g)
+#define H5E_OVERFLOW         (H5OPEN H5E_OVERFLOW_g)
+#define H5E_FCNTL            (H5OPEN H5E_FCNTL_g)
+H5_DLLVAR hid_t H5E_SEEKERROR_g;     /* Seek failed */
+H5_DLLVAR hid_t H5E_READERROR_g;     /* Read failed */
+H5_DLLVAR hid_t H5E_WRITEERROR_g;    /* Write failed */
+H5_DLLVAR hid_t H5E_CLOSEERROR_g;    /* Close failed */
+H5_DLLVAR hid_t H5E_OVERFLOW_g;      /* Address overflowed */
+H5_DLLVAR hid_t H5E_FCNTL_g;         /* File control (fcntl) failed */
+
+/* Dataspace errors */
+#define H5E_CANTCLIP         (H5OPEN H5E_CANTCLIP_g)
+#define H5E_CANTCOUNT        (H5OPEN H5E_CANTCOUNT_g)
+#define H5E_CANTSELECT       (H5OPEN H5E_CANTSELECT_g)
+#define H5E_CANTNEXT         (H5OPEN H5E_CANTNEXT_g)
+#define H5E_BADSELECT        (H5OPEN H5E_BADSELECT_g)
+#define H5E_CANTCOMPARE      (H5OPEN H5E_CANTCOMPARE_g)
+#define H5E_INCONSISTENTSTATE (H5OPEN H5E_INCONSISTENTSTATE_g)
+#define H5E_CANTAPPEND       (H5OPEN H5E_CANTAPPEND_g)
+H5_DLLVAR hid_t H5E_CANTCLIP_g;      /* Can't clip hyperslab region */
+H5_DLLVAR hid_t H5E_CANTCOUNT_g;     /* Can't count elements */
+H5_DLLVAR hid_t H5E_CANTSELECT_g;    /* Can't select hyperslab */
+H5_DLLVAR hid_t H5E_CANTNEXT_g;      /* Can't move to next iterator location */
+H5_DLLVAR hid_t H5E_BADSELECT_g;     /* Invalid selection */
+H5_DLLVAR hid_t H5E_CANTCOMPARE_g;   /* Can't compare objects */
+H5_DLLVAR hid_t H5E_INCONSISTENTSTATE_g; /* Internal states are inconsistent */
+H5_DLLVAR hid_t H5E_CANTAPPEND_g;    /* Can't append object */
+
+/* System level errors */
+#define H5E_SYSERRSTR        (H5OPEN H5E_SYSERRSTR_g)
+H5_DLLVAR hid_t H5E_SYSERRSTR_g;     /* System error message */
+
+/* Map related errors */
+#define H5E_CANTPUT          (H5OPEN H5E_CANTPUT_g)
+H5_DLLVAR hid_t H5E_CANTPUT_g;       /* Can't put value */
+
+/* Object ID related errors */
+#define H5E_BADID            (H5OPEN H5E_BADID_g)
+#define H5E_BADGROUP         (H5OPEN H5E_BADGROUP_g)
+#define H5E_CANTREGISTER     (H5OPEN H5E_CANTREGISTER_g)
+#define H5E_CANTINC          (H5OPEN H5E_CANTINC_g)
+#define H5E_CANTDEC          (H5OPEN H5E_CANTDEC_g)
+#define H5E_NOIDS            (H5OPEN H5E_NOIDS_g)
+H5_DLLVAR hid_t H5E_BADID_g;         /* Unable to find ID information (already closed?) */
+H5_DLLVAR hid_t H5E_BADGROUP_g;      /* Unable to find ID group information */
+H5_DLLVAR hid_t H5E_CANTREGISTER_g;  /* Unable to register new ID */
+H5_DLLVAR hid_t H5E_CANTINC_g;       /* Unable to increment reference count */
+H5_DLLVAR hid_t H5E_CANTDEC_g;       /* Unable to decrement reference count */
+H5_DLLVAR hid_t H5E_NOIDS_g;         /* Out of IDs for group */
+
+/* I/O pipeline errors */
+#define H5E_NOFILTER         (H5OPEN H5E_NOFILTER_g)
+#define H5E_CALLBACK         (H5OPEN H5E_CALLBACK_g)
+#define H5E_CANAPPLY         (H5OPEN H5E_CANAPPLY_g)
+#define H5E_SETLOCAL         (H5OPEN H5E_SETLOCAL_g)
+#define H5E_NOENCODER        (H5OPEN H5E_NOENCODER_g)
+#define H5E_CANTFILTER       (H5OPEN H5E_CANTFILTER_g)
+H5_DLLVAR hid_t H5E_NOFILTER_g;      /* Requested filter is not available */
+H5_DLLVAR hid_t H5E_CALLBACK_g;      /* Callback failed */
+H5_DLLVAR hid_t H5E_CANAPPLY_g;      /* Error from filter 'can apply' callback */
+H5_DLLVAR hid_t H5E_SETLOCAL_g;      /* Error from filter 'set local' callback */
+H5_DLLVAR hid_t H5E_NOENCODER_g;     /* Filter present but encoding disabled */
+H5_DLLVAR hid_t H5E_CANTFILTER_g;    /* Filter operation failed */
+
+/* Argument errors */
+#define H5E_UNINITIALIZED    (H5OPEN H5E_UNINITIALIZED_g)
+#define H5E_UNSUPPORTED      (H5OPEN H5E_UNSUPPORTED_g)
+#define H5E_BADTYPE          (H5OPEN H5E_BADTYPE_g)
+#define H5E_BADRANGE         (H5OPEN H5E_BADRANGE_g)
+#define H5E_BADVALUE         (H5OPEN H5E_BADVALUE_g)
+H5_DLLVAR hid_t H5E_UNINITIALIZED_g; /* Information is uinitialized */
+H5_DLLVAR hid_t H5E_UNSUPPORTED_g;   /* Feature is unsupported */
+H5_DLLVAR hid_t H5E_BADTYPE_g;       /* Inappropriate type */
+H5_DLLVAR hid_t H5E_BADRANGE_g;      /* Out of range */
+H5_DLLVAR hid_t H5E_BADVALUE_g;      /* Bad value */
+
+/* Datatype conversion errors */
+#define H5E_CANTCONVERT      (H5OPEN H5E_CANTCONVERT_g)
+#define H5E_BADSIZE          (H5OPEN H5E_BADSIZE_g)
+H5_DLLVAR hid_t H5E_CANTCONVERT_g;   /* Can't convert datatypes */
+H5_DLLVAR hid_t H5E_BADSIZE_g;       /* Bad size for object */
+
+/* Asynchronous operation errors */
+#define H5E_CANTWAIT         (H5OPEN H5E_CANTWAIT_g)
+#define H5E_CANTCANCEL       (H5OPEN H5E_CANTCANCEL_g)
+H5_DLLVAR hid_t H5E_CANTWAIT_g;      /* Can't wait on operation */
+H5_DLLVAR hid_t H5E_CANTCANCEL_g;    /* Can't cancel operation */
+
 #ifdef __cplusplus
 }
 #endif
