@@ -408,7 +408,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E__register_class() */
 
-#if H5_HAVE_MULTITHREAD
+#ifdef H5_HAVE_MULTITHREAD
 
 /*-------------------------------------------------------------------------
  * Function:    H5E__unregister_class
