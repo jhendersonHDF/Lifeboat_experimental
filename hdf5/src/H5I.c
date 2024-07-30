@@ -170,7 +170,7 @@ H5Iregister_type(size_t H5_ATTR_DEBUG_API_USED hash_size, unsigned reserved, H5I
     cls->free_func = free_func;
 
     /* Register the new ID class */
-    if (H5I_register_type(cls) < 0)
+    if (H5I_register_type_internal(cls) < 0)
         HGOTO_ERROR(H5E_ID, H5E_CANTINIT, H5I_BADID, "can't initialize ID class");
 
     /* Set return value */
@@ -397,7 +397,7 @@ H5Inmembers(H5I_type_t type, hsize_t *num_members)
     if (num_members) {
         int64_t members;
 
-        if ( (members = H5I_nmembers(type)) < 0 )
+        if ( (members = H5I_nmembers_internal(type)) < 0 )
 
             HGOTO_ERROR(H5E_ID, H5E_CANTCOUNT, FAIL, "can't compute number of members");
 
@@ -506,7 +506,7 @@ H5Iclear_type(H5I_type_t type, hbool_t force)
     if (H5I_IS_LIB_TYPE(type))
         HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "cannot call public function on library type");
 
-    ret_value = H5I_clear_type(type, force, TRUE);
+    ret_value = H5I_clear_type_internal(type, force, TRUE);
 
 done:
 
@@ -810,7 +810,7 @@ H5Iobject_verify(hid_t id, H5I_type_t type)
 
         HGOTO_ERROR(H5E_ID, H5E_BADGROUP, NULL, "identifier has invalid type");
 
-    ret_value = H5I_object_verify(id, type);
+    ret_value = H5I_object_verify_internal(id, type);
 
 done:
 
@@ -885,9 +885,10 @@ H5Iget_type(hid_t id)
 
     H5I__enter(TRUE);
 
-    ret_value = H5I_get_type(id);
+    ret_value = H5I_get_type_internal(id);
 
-    if (ret_value <= H5I_BADID || (int)ret_value >= atomic_load(&(H5I_mt_g.next_type)) || NULL == H5I_object(id))
+    if (ret_value <= H5I_BADID || (int)ret_value >= atomic_load(&(H5I_mt_g.next_type)) || 
+        NULL == H5I_object_internal(id))
 
         HGOTO_DONE(H5I_BADID);
 
@@ -925,13 +926,8 @@ H5Iget_type(hid_t id)
 
     ret_value = H5I_get_type(id);
 
-#ifdef H5_HAVE_MULTITHREAD
-    if (ret_value <= H5I_BADID || (int)ret_value >= atomic_load(&(H5I_mt_g.next_type)) || NULL == H5I_object(id))
-        HGOTO_DONE(H5I_BADID);
-#else /* H5_HAVE_MULTITHREAD */
     if (ret_value <= H5I_BADID || (int)ret_value >= H5I_next_type_g || NULL == H5I_object(id))
         HGOTO_DONE(H5I_BADID);
-#endif /* H5_HAVE_MULTITHREAD */
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1052,7 +1048,7 @@ H5Idec_ref(hid_t id)
         HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "invalid ID");
 
     /* Do actual decrement operation */
-    if ((ret_value = H5I_dec_app_ref(id)) < 0)
+    if ((ret_value = H5I_dec_app_ref_internal(id)) < 0)
         HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count");
 
 done:
@@ -1128,7 +1124,7 @@ H5Iinc_ref(hid_t id)
         HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "invalid ID");
 
     /* Do actual increment operation */
-    if ((ret_value = H5I_inc_ref(id, TRUE)) < 0)
+    if ((ret_value = H5I_inc_ref_internal(id, TRUE)) < 0)
         HGOTO_ERROR(H5E_ID, H5E_CANTINC, (-1), "can't increment ID ref count");
 
 done:
@@ -1199,7 +1195,7 @@ H5Iget_ref(hid_t id)
         HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "invalid ID");
 
     /* Do actual retrieve operation */
-    if ((ret_value = H5I_get_ref(id, TRUE)) < 0)
+    if ((ret_value = H5I_get_ref_internal(id, TRUE)) < 0)
         HGOTO_ERROR(H5E_ID, H5E_CANTGET, (-1), "can't get ID ref count");
 
 done:
@@ -1363,7 +1359,7 @@ H5Idec_type_ref(H5I_type_t type)
     if (H5I_IS_LIB_TYPE(type))
         HGOTO_ERROR(H5E_ID, H5E_BADGROUP, (-1), "cannot call public function on library type");
 
-    ret_value = H5I_dec_type_ref(type);
+    ret_value = H5I_dec_type_ref_internal(type);
 
 done:
 
@@ -1662,7 +1658,11 @@ H5Isearch(H5I_type_t type, H5I_search_func_t func, void *key)
     /* Note that H5I_iterate returns an error code.  We ignore it
      * here, as we can't do anything with it without revising the API.
      */
+#ifdef H5_HAVE_MULTITHREAD
+    (void)H5I_iterate_internal(type, H5I__search_cb, &udata, true);
+#else /* H5_HAVE_MULTITHREAD */
     (void)H5I_iterate(type, H5I__search_cb, &udata, true);
+#endif /* H5_HAVE_MULTITHREAD */
 
     /* Set return value */
     ret_value = udata.ret_obj;
@@ -1761,8 +1761,13 @@ H5Iiterate(H5I_type_t type, H5I_iterate_func_t op, void *op_data)
     /* Note that H5I_iterate returns an error code.  We ignore it
      * here, as we can't do anything with it without revising the API.
      */
+#ifdef H5_HAVE_MULTITHREAD
+    if ((ret_value = H5I_iterate_internal(type, H5I__iterate_pub_cb, &int_udata, true)) < 0)
+        HGOTO_ERROR(H5E_ID, H5E_BADITER, FAIL, "can't iterate over ids");
+#else /* H5_HAVE_MULTITHREAD */
     if ((ret_value = H5I_iterate(type, H5I__iterate_pub_cb, &int_udata, true)) < 0)
         HGOTO_ERROR(H5E_ID, H5E_BADITER, FAIL, "can't iterate over ids");
+#endif /* H5_HAVE_MULTITHREAD */
 
 done:
 
@@ -1875,7 +1880,11 @@ H5Iget_name(hid_t id, char *name /*out*/, size_t size)
 
     /* Set location parameters */
     loc_params.type     = H5VL_OBJECT_BY_SELF;
+#ifdef H5_HAVE_MULTITHREAD
+    loc_params.obj_type = H5I_get_type_internal(id);
+#else /*  H5_HAVE_MULTITHREAD */
     loc_params.obj_type = H5I_get_type(id);
+#endif /* H5_HAVE_MULTITHREAD */
 
     /* Set up VOL callback arguments */
     vol_cb_args.op_type                = H5VL_OBJECT_GET_NAME;
