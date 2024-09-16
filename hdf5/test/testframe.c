@@ -20,8 +20,8 @@
 /*
  * Definitions for the testing structure.
  */
-#define MAXTESTNAME 16
-#define MAXTESTDESC 64
+#define MAXTESTNAME 64
+#define MAXTESTDESC 128
 
 typedef struct TestStruct {
     int  NumErrors;
@@ -41,9 +41,10 @@ static int         num_errs                         = 0;         /* Total number
 int                TestVerbosity                    = VERBO_DEF; /* Default Verbosity is Low */
 static int         Summary                          = 0;         /* Show test summary. Default is no. */
 static int         CleanUp                          = 1;         /* Do cleanup or not. Default is yes. */
-static int         TestExpress                      = -1;   /* Do TestExpress or not. -1 means not set yet. */
-static TestStruct *Test                             = NULL; /* Array of tests */
-static unsigned    TestAlloc                        = 0;    /* Size of the Test array */
+static int         TestExpress                      = -1;        /* Do TestExpress or not. -1 means not set yet. */
+static int         TestMaxNumThreads                = 0;         /* Max number of threads that can be spawned */
+static TestStruct *Test                             = NULL;      /* Array of tests */
+static unsigned    TestAlloc                        = 0;         /* Size of the Test array */
 static unsigned    Index                            = 0;
 static const void *Test_parameters                  = NULL;
 static const char *TestProgName                     = NULL;
@@ -143,6 +144,14 @@ TestInit(const char *ProgName, void (*private_usage)(void), int (*private_parser
         TestPrivateUsage = private_usage;
     if (NULL != private_parser)
         TestPrivateParser = private_parser;
+
+    /*
+     * Reset global variables used by the testing framework
+     */
+    n_tests_run_g     = 0;
+    n_tests_passed_g  = 0;
+    n_tests_failed_g  = 0;
+    n_tests_skipped_g = 0;
 }
 
 /*
@@ -159,17 +168,19 @@ TestUsage(void)
     print_func("              [-[e]x[clude] name]+ \n");
     print_func("              [-o[nly] name]+ \n");
     print_func("              [-b[egin] name] \n");
+    print_func("              [-[max]t[hreads]]  \n");
     print_func("              [-s[ummary]]  \n");
     print_func("              [-c[leanoff]]  \n");
     print_func("              [-h[elp]]  \n");
     print_func("\n\n");
-    print_func("verbose   controls the amount of information displayed\n");
-    print_func("exclude   to exclude tests by name\n");
-    print_func("only      to name tests which should be run\n");
-    print_func("begin     start at the name of the test givin\n");
-    print_func("summary   prints a summary of test results at the end\n");
-    print_func("cleanoff  does not delete *.hdf files after execution of tests\n");
-    print_func("help      print out this information\n");
+    print_func("verbose     controls the amount of information displayed\n");
+    print_func("exclude     to exclude tests by name\n");
+    print_func("only        to name tests which should be run\n");
+    print_func("begin       start at the name of the test givin\n");
+    print_func("maxthreads  maximum number of threads to be used by multi-thread tests\n");
+    print_func("summary     prints a summary of test results at the end\n");
+    print_func("cleanoff    does not delete *.hdf files after execution of tests\n");
+    print_func("help        print out this information\n");
     if (TestPrivateUsage) {
         print_func("\nExtra options\n");
         TestPrivateUsage();
@@ -180,7 +191,7 @@ TestUsage(void)
     print_func("%16s %s\n", "----", "-----------");
 
     for (i = 0; i < Index; i++)
-        print_func("%16s %s\n", Test[i].Name, Test[i].Description);
+        print_func("%16s -- %s\n", Test[i].Name, Test[i].Description);
 
     print_func("\n\n");
 }
@@ -276,6 +287,38 @@ TestParseCmdLine(int argc, char *argv[])
         }
         else if ((HDstrcmp(*argv, "-cleanoff") == 0) || (HDstrcmp(*argv, "-c") == 0))
             SetTestNoCleanup();
+        else if ((HDstrcmp(*argv, "-maxthreads") == 0) || (HDstrcmp(*argv, "-t") == 0)) {
+            if (argc > 0) {
+                long max_threads;
+
+                --argc;
+                ++argv;
+
+                errno = 0;
+                max_threads = strtol(*argv, NULL, 10);
+                if (errno != 0) {
+                    fprintf(stderr, "error while parsing value (%s) specified for maximum number of threads\n", *argv);
+                    TestUsage();
+                    exit(EXIT_FAILURE);
+                }
+                if (max_threads <= 0) {
+                    fprintf(stderr, "invalid value (%ld) specified for maximum number of threads\n", max_threads);
+                    TestUsage();
+                    exit(EXIT_FAILURE);
+                }
+                else if (max_threads > (long)INT_MAX) {
+                    fprintf(stderr, "value (%ld) specified for maximum number of threads too large\n", max_threads);
+                    TestUsage();
+                    exit(EXIT_FAILURE);
+                }
+
+                SetTestMaxNumThreads((int)max_threads);
+            }
+            else {
+                TestUsage();
+                exit(EXIT_FAILURE);
+            }
+        }
         else {
             /* non-standard option.  Break out. */
             break;
@@ -319,9 +362,9 @@ PerformTests(void)
     MESSAGE(2, ("\n\n"));
 
     if (num_errs)
-        print_func("!!! %d Error(s) were detected !!!\n\n", (int)num_errs);
+        MESSAGE(VERBO_NONE, ("!!! %d Error(s) were detected !!!\n\n", (int)num_errs));
     else
-        print_func("All tests were successful. \n\n");
+        MESSAGE(VERBO_NONE, ("All tests were successful. \n\n"));
 }
 
 /*
@@ -618,6 +661,33 @@ SetTest(const char *testname, int action)
             printf("*** ERROR: Unknown action (%d) for SetTest\n", action);
             break;
     }
+}
+
+/*
+ * Returns the value set for the maximum number of threads that a test
+ * program can spawn.
+ */
+H5_ATTR_PURE int
+GetTestMaxNumThreads(void)
+{
+    return TestMaxNumThreads;
+}
+
+/*
+ * Set the value for the maximum number of threads that a test program
+ * can spawn.
+ */
+int
+SetTestMaxNumThreads(int max_num_threads)
+{
+    if (max_num_threads <= 0) {
+        fprintf(stderr, "invalid value specified for maximum number of threads value\n");
+        return -1;
+    }
+
+    TestMaxNumThreads = max_num_threads;
+
+    return 0;
 }
 
 /* Enable a test timer that will kill long-running tests, the time is configurable

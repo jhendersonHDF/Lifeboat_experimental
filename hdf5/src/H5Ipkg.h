@@ -52,6 +52,22 @@
 
 #ifdef H5_HAVE_MULTITHREAD
 #include "lfht.h"
+
+#ifdef __CDT_PARSER__
+/* XXX: Make eclipse happy */
+#undef atomic_init
+#undef atomic_load
+#undef atomic_store
+#undef atomic_compare_exchange_strong
+
+#define _Atomic
+#define atomic_init(PTR, VAL) do { ((PTR) = (VAL)); } while (0)
+#define atomic_load(PTR) (void)(PTR)
+#define atomic_store(PTR, VAL) do { ((PTR) = (VAL)); } while(0)
+#define atomic_compare_exchange_strong(PTR, VAL, DES) (void)((PTR) == (VAL))
+#endif
+
+/* XXX: Make eclipse happy */
 #endif /* H5_HAVE_MULTITHREAD */
 
 /****************************/
@@ -893,7 +909,7 @@ typedef struct H5I_mt_type_info_t H5I_mt_type_info_t;  /* forward declaration */
 typedef struct H5I_mt_t {
 
     /* Cognates of pre-existing Globals: */
-    _Atomic (H5I_mt_type_info_t *) type_info_array[H5I_MAX_NUM_TYPES];
+    H5I_mt_type_info_t * _Atomic type_info_array[H5I_MAX_NUM_TYPES];
     _Atomic hbool_t type_info_allocation_table[H5I_MAX_NUM_TYPES];
     _Atomic int next_type;
     _Atomic int marking_array[H5I_MAX_NUM_TYPES];

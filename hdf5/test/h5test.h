@@ -333,6 +333,8 @@ H5TEST_DLL void        IncTestNumErrs(void);
 H5TEST_DLL const void *GetTestParameters(void);
 H5TEST_DLL int         TestErrPrintf(const char *format, ...) H5_ATTR_FORMAT(printf, 1, 2);
 H5TEST_DLL void        SetTest(const char *testname, int action);
+H5TEST_DLL int         GetTestMaxNumThreads(void);
+H5TEST_DLL int         SetTestMaxNumThreads(int max_num_threads);
 H5TEST_DLL void        TestAlarmOn(void);
 H5TEST_DLL void        TestAlarmOff(void);
 
