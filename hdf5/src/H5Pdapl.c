@@ -302,7 +302,7 @@ H5P__dapl_vds_file_pref_get(hid_t H5_ATTR_UNUSED prop_id, const char H5_ATTR_UNU
 /*-------------------------------------------------------------------------
  * Function:    H5P__dapl_vds_file_pref_enc
  *
- * Purpose:     Callback routine which is called whenever the vds file flags
+ * Purpose:     Callback routine which is called whenever the vds file prefix
  *              property in the dataset access property list is
  *              encoded.
  *
@@ -324,7 +324,7 @@ H5P__dapl_vds_file_pref_enc(const void *value, void **_pp, size_t *size)
 
     /* calculate prefix length */
     if (NULL != vds_file_pref)
-        len = HDstrlen(vds_file_pref);
+        len = strlen(vds_file_pref);
 
     enc_value = (uint64_t)len;
     enc_size  = H5VM_limit_enc_size(enc_value);
@@ -388,7 +388,7 @@ H5P__dapl_vds_file_pref_dec(const void **_pp, void *_value)
         /* Make a copy of the user's prefix string */
         if (NULL == (*vds_file_pref = (char *)H5MM_malloc(len + 1)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_CANTINIT, FAIL, "memory allocation failed for prefix");
-        HDstrncpy(*vds_file_pref, *(const char **)pp, len);
+        strncpy(*vds_file_pref, *(const char **)pp, len);
         (*vds_file_pref)[len] = '\0';
 
         *pp += len;
@@ -465,7 +465,7 @@ H5P__dapl_vds_file_pref_cmp(const void *value1, const void *value2, size_t H5_AT
     if (NULL != pref1 && NULL == pref2)
         HGOTO_DONE(-1);
     if (NULL != pref1 && NULL != pref2)
-        ret_value = HDstrcmp(pref1, pref2);
+        ret_value = strcmp(pref1, pref2);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -564,7 +564,7 @@ H5P__dapl_efile_pref_enc(const void *value, void **_pp, size_t *size)
 
     /* calculate prefix length */
     if (NULL != efile_pref)
-        len = HDstrlen(efile_pref);
+        len = strlen(efile_pref);
 
     enc_value = (uint64_t)len;
     enc_size  = H5VM_limit_enc_size(enc_value);
@@ -628,7 +628,7 @@ H5P__dapl_efile_pref_dec(const void **_pp, void *_value)
         /* Make a copy of the user's prefix string */
         if (NULL == (*efile_pref = (char *)H5MM_malloc(len + 1)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_CANTINIT, FAIL, "memory allocation failed for prefix");
-        HDstrncpy(*efile_pref, *(const char **)pp, len);
+        strncpy(*efile_pref, *(const char **)pp, len);
         (*efile_pref)[len] = '\0';
 
         *pp += len;
@@ -705,7 +705,7 @@ H5P__dapl_efile_pref_cmp(const void *value1, const void *value2, size_t H5_ATTR_
     if (NULL != pref1 && NULL == pref2)
         HGOTO_DONE(-1);
     if (NULL != pref1 && NULL != pref2)
-        ret_value = HDstrcmp(pref1, pref2);
+        ret_value = strcmp(pref1, pref2);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -762,7 +762,6 @@ H5Pset_chunk_cache(hid_t dapl_id, size_t rdcc_nslots, size_t rdcc_nbytes, double
     herr_t          ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "izzd", dapl_id, rdcc_nslots, rdcc_nbytes, rdcc_w0);
 
     /* Check arguments.  Note that we allow negative values - they are
      * considered to "unset" the property. */
@@ -810,7 +809,6 @@ H5Pget_chunk_cache(hid_t dapl_id, size_t *rdcc_nslots /*out*/, size_t *rdcc_nbyt
     herr_t          ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "ixxx", dapl_id, rdcc_nslots, rdcc_nbytes, rdcc_w0);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(dapl_id, H5P_DATASET_ACCESS)))
@@ -1072,7 +1070,6 @@ H5Pset_virtual_view(hid_t plist_id, H5D_vds_view_t view)
     herr_t          ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "iDv", plist_id, view);
 
     /* Check argument */
     if ((view != H5D_VDS_FIRST_MISSING) && (view != H5D_VDS_LAST_AVAILABLE))
@@ -1108,7 +1105,6 @@ H5Pget_virtual_view(hid_t plist_id, H5D_vds_view_t *view /*out*/)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", plist_id, view);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
@@ -1214,7 +1210,6 @@ H5Pset_virtual_printf_gap(hid_t plist_id, hsize_t gap_size)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ih", plist_id, gap_size);
 
     /* Check argument */
     if (gap_size == HSIZE_UNDEF)
@@ -1251,7 +1246,6 @@ H5Pget_virtual_printf_gap(hid_t plist_id, hsize_t *gap_size /*out*/)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", plist_id, gap_size);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
@@ -1291,7 +1285,6 @@ H5Pset_append_flush(hid_t plist_id, unsigned ndims, const hsize_t *boundary, H5D
     herr_t             ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE5("e", "iIu*hDA*x", plist_id, ndims, boundary, func, udata);
 
     /* Check arguments */
     if (0 == ndims)
@@ -1353,7 +1346,6 @@ H5Pget_append_flush(hid_t plist_id, unsigned ndims, hsize_t boundary[], H5D_appe
     herr_t             ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE5("e", "iIu*hxx", plist_id, ndims, boundary, func, udata);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
@@ -1403,7 +1395,6 @@ H5Pset_efile_prefix(hid_t plist_id, const char *prefix)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "i*s", plist_id, prefix);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
@@ -1436,7 +1427,6 @@ H5Pget_efile_prefix(hid_t plist_id, char *prefix /*out*/, size_t size)
     ssize_t         ret_value; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("Zs", "ixz", plist_id, prefix, size);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
@@ -1449,9 +1439,9 @@ H5Pget_efile_prefix(hid_t plist_id, char *prefix /*out*/, size_t size)
     /* Check for prefix being set */
     if (my_prefix) {
         /* Copy to user's buffer, if given */
-        len = HDstrlen(my_prefix);
+        len = strlen(my_prefix);
         if (prefix) {
-            HDstrncpy(prefix, my_prefix, size);
+            strncpy(prefix, my_prefix, size);
             if (len >= size)
                 prefix[size - 1] = '\0';
         } /* end if */
@@ -1491,7 +1481,6 @@ H5Pset_virtual_prefix(hid_t plist_id, const char *prefix)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "i*s", plist_id, prefix);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
@@ -1526,7 +1515,6 @@ H5Pget_virtual_prefix(hid_t plist_id, char *prefix /*out*/, size_t size)
     ssize_t         ret_value; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("Zs", "ixz", plist_id, prefix, size);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
@@ -1539,9 +1527,9 @@ H5Pget_virtual_prefix(hid_t plist_id, char *prefix /*out*/, size_t size)
     /* Check for prefix being set */
     if (my_prefix) {
         /* Copy to user's buffer, if given */
-        len = HDstrlen(my_prefix);
+        len = strlen(my_prefix);
         if (prefix) {
-            HDstrncpy(prefix, my_prefix, size);
+            strncpy(prefix, my_prefix, size);
             if (len >= size)
                 prefix[size - 1] = '\0';
         } /* end if */

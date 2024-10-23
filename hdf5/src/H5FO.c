@@ -25,6 +25,7 @@
 #include "H5FLprivate.h" /* Free lists                           */
 #include "H5FOprivate.h" /* File objects                         */
 #include "H5Oprivate.h"  /* Object headers		  	*/
+#include "H5SLprivate.h" /* Skip Lists                               */
 
 /* Private typedefs */
 
@@ -32,7 +33,7 @@
 typedef struct H5FO_open_obj_t {
     haddr_t addr;    /* Address of object header for object */
     void   *obj;     /* Pointer to the object            */
-    hbool_t deleted; /* Flag to indicate that the object was deleted from the file */
+    bool    deleted; /* Flag to indicate that the object was deleted from the file */
 } H5FO_open_obj_t;
 
 /* Information about counted objects in a file */
@@ -135,11 +136,11 @@ H5FO_opened(const H5F_t *f, haddr_t addr)
  PURPOSE
     Insert a newly opened object/pointer pair into the opened object info set
  USAGE
-    herr_t H5FO_insert(f,addr,obj)
+    herr_t H5FO_insert(f,addr,obj,delete_flag)
         H5F_t *f;               IN/OUT: File's opened object info set
         haddr_t addr;           IN: Address of object to insert
         void *obj;              IN: Pointer to object to insert
-        hbool_t delete_flag;    IN: Whether to 'mark' this object for deletion
+        bool delete_flag;    IN: Whether to 'mark' this object for deletion
 
  RETURNS
     Returns a non-negative on success, negative on failure
@@ -151,7 +152,7 @@ H5FO_opened(const H5F_t *f, haddr_t addr)
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5FO_insert(const H5F_t *f, haddr_t addr, void *obj, hbool_t delete_flag)
+H5FO_insert(const H5F_t *f, haddr_t addr, void *obj, bool delete_flag)
 {
     H5FO_open_obj_t *open_obj;            /* Information about open object */
     herr_t           ret_value = SUCCEED; /* Return value */
@@ -238,9 +239,10 @@ done:
  PURPOSE
     Mark an object to be deleted when it is closed
  USAGE
-    herr_t H5FO_mark(f,addr)
+    herr_t H5FO_mark(f,addr,deleted)
         const H5F_t *f;         IN: File opened object is in
         haddr_t addr;           IN: Address of object to delete
+        bool deleted;           IN: true for to be deleted
 
  RETURNS
     Returns a non-negative ID for the object on success, negative on failure
@@ -252,7 +254,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5FO_mark(const H5F_t *f, haddr_t addr, hbool_t deleted)
+H5FO_mark(const H5F_t *f, haddr_t addr, bool deleted)
 {
     H5FO_open_obj_t *open_obj;            /* Information about open object */
     herr_t           ret_value = SUCCEED; /* Return value */
@@ -280,12 +282,12 @@ H5FO_mark(const H5F_t *f, haddr_t addr, hbool_t deleted)
  PURPOSE
     Check if an object is marked to be deleted when it is closed
  USAGE
-    hbool_t H5FO_marked(f,addr)
+    bool H5FO_marked(f,addr)
         const H5F_t *f;         IN: File opened object is in
         haddr_t addr;           IN: Address of object to delete
 
  RETURNS
-    Returns a TRUE/FALSE on success
+    Returns a true/false on success
  DESCRIPTION
     Checks if the object is currently in the "opened objects" tree and
     whether its marks for deletion from the file when it is closed.
@@ -294,11 +296,11 @@ H5FO_mark(const H5F_t *f, haddr_t addr, hbool_t deleted)
  EXAMPLES
  REVISION LOG
 --------------------------------------------------------------------------*/
-hbool_t
+bool
 H5FO_marked(const H5F_t *f, haddr_t addr)
 {
     H5FO_open_obj_t *open_obj;          /* Information about open object */
-    hbool_t          ret_value = FALSE; /* Return value */
+    bool             ret_value = false; /* Return value */
 
     FUNC_ENTER_NOAPI_NOERR
 
@@ -365,7 +367,7 @@ done:
  PURPOSE
     Create the "top" open object count set
  USAGE
-    herr_t H5FO_create(f)
+    herr_t H5FO_top_create(f)
         H5F_t *f;       IN/OUT: File to create opened object count set for
 
  RETURNS
@@ -508,7 +510,7 @@ done:
  PURPOSE
     Return the "top" reference count for an object in a file
  USAGE
-    hsize_t H5FO_top_incr(f, addr)
+    hsize_t H5FO_top_count(f, addr)
         H5F_t *f;               IN/OUT: File's opened object info set
         haddr_t addr;           IN: Address of object to increment
 

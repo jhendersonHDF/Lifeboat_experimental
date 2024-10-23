@@ -650,7 +650,7 @@ H5VL_pass_through_info_to_str(const void *_info, char **str)
 
     /* Allocate space for our info */
     size_t strSize = 32 + under_vol_str_len;
-    *str           = (char *)H5allocate_memory(strSize, (hbool_t)0);
+    *str           = (char *)H5allocate_memory(strSize, (bool)0);
     assert(*str);
 
     /* Encode our info */
@@ -2686,7 +2686,7 @@ H5VL_pass_through_request_wait(void *obj, uint64_t timeout, H5VL_request_status_
 
     ret_value = H5VLrequest_wait(o->under_object, o->under_vol_id, timeout, status);
 
-    if (ret_value >= 0 && *status != H5ES_STATUS_IN_PROGRESS)
+    if (ret_value >= 0 && *status != H5VL_REQUEST_STATUS_IN_PROGRESS)
         H5VL_pass_through_free_obj(o);
 
     return ret_value;

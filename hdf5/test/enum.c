@@ -782,7 +782,7 @@ main(void)
     char  name[1024];
     int   nerrors = 0;
 
-    h5_reset();
+    h5_test_init();
     fapl_id = h5_fileaccess();
 
     /* Create the file */
@@ -808,12 +808,12 @@ main(void)
     if (nerrors)
         goto error;
 
-    HDputs("All enum tests passed.");
+    puts("All enum tests passed.");
     h5_cleanup(FILENAME, fapl_id);
 
     return EXIT_SUCCESS;
 
 error:
-    HDputs("*** ENUM TESTS FAILED ***");
+    puts("*** ENUM TESTS FAILED ***");
     return EXIT_FAILURE;
 }

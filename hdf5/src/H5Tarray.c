@@ -86,7 +86,6 @@ H5Tarray_create2(hid_t base_id, unsigned ndims, const hsize_t dim[/* ndims */])
     hid_t    ret_value; /* return value	*/
 
     FUNC_ENTER_API(H5I_INVALID_HID)
-    H5TRACE3("i", "iIu*h", base_id, ndims, dim);
 
     /* Check args */
     if (ndims < 1 || ndims > H5S_MAX_RANK)
@@ -104,7 +103,7 @@ H5Tarray_create2(hid_t base_id, unsigned ndims, const hsize_t dim[/* ndims */])
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to create datatype");
 
     /* Register the type */
-    if ((ret_value = H5I_register(H5I_DATATYPE, dt, TRUE)) < 0)
+    if ((ret_value = H5I_register(H5I_DATATYPE, dt, true)) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register datatype");
 
 done:
@@ -163,8 +162,8 @@ H5T__array_create(H5T_t *base, unsigned ndims, const hsize_t dim[/* ndims */])
     ret_value->shared->size = ret_value->shared->parent->shared->size * ret_value->shared->u.array.nelem;
 
     /* Set the "force conversion" flag if the base datatype indicates */
-    if (base->shared->force_conv == TRUE)
-        ret_value->shared->force_conv = TRUE;
+    if (base->shared->force_conv == true)
+        ret_value->shared->force_conv = true;
 
     /* Array datatypes need a later version of the datatype object header message */
     ret_value->shared->version = MAX(base->shared->version, H5O_DTYPE_VERSION_2);
@@ -190,7 +189,6 @@ H5Tget_array_ndims(hid_t type_id)
     int    ret_value; /* return value			*/
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE1("Is", "i", type_id);
 
     /* Check args */
     if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
@@ -245,7 +243,6 @@ H5Tget_array_dims2(hid_t type_id, hsize_t dims[] /*out*/)
     int    ret_value; /* return value			*/
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("Is", "ix", type_id, dims);
 
     /* Check args */
     if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
@@ -318,7 +315,6 @@ H5Tarray_create1(hid_t base_id, int ndims, const hsize_t dim[/* ndims */],
     hid_t    ret_value; /* return value	*/
 
     FUNC_ENTER_API(H5I_INVALID_HID)
-    H5TRACE4("i", "iIs*h*Is", base_id, ndims, dim, perm);
 
     /* Check args */
     if (ndims < 1 || ndims > H5S_MAX_RANK)
@@ -336,7 +332,7 @@ H5Tarray_create1(hid_t base_id, int ndims, const hsize_t dim[/* ndims */],
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to create datatype");
 
     /* Register the type */
-    if ((ret_value = H5I_register(H5I_DATATYPE, dt, TRUE)) < 0)
+    if ((ret_value = H5I_register(H5I_DATATYPE, dt, true)) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register datatype");
 
 done:
@@ -364,7 +360,6 @@ H5Tget_array_dims1(hid_t type_id, hsize_t dims[] /*out*/, int H5_ATTR_UNUSED per
     int    ret_value; /* return value			*/
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("Is", "ixx", type_id, dims, perm);
 
     /* Check args */
     if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))

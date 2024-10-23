@@ -1,35 +1,18 @@
-INTRODUCTION
-============
+HDF5 version 1.14.5 released on 2024-09-30
 
-This purpose of this document is to contain entries that can be used to quickly
-produce a release newsletter. When something is added to the library that is
-"newsletter worthy" (i.e., new feature, CVE fix, etc.) a summary note should
-be added here.
+Features included for the next major release:
+----------------------------------------------------------------------------
 
-The format should look like this:
+* The release process now provides signed Windows and Mac installation binaries 
+  in addition to the Debian and rpm installation binaries. The Mac binaries are 
+  built as universal binaries on an ARM-based Mac.
 
-* SUMMARY OF NEWSLETTER-WORTHY THING
+* Added new routines for interacting with error stacks: H5Epause_stack, 
+  H5Eresume_stack, and H5Eis_paused.  These routines can be used to indicate 
+  that errors from a call to an HDF5 routine should not be pushed on to an error 
+  stack.
 
-    Here is where you describe the summary. Summarize the feature, fix, or
-    change in general language. Remember, RELEASE.txt is for communicating
-    technical specifics. Text entered here is more like advertising.
+----------------------------------------------------------------------------
+Please see the full release notes for detailed information regarding this release,
+including a detailed list of changes.
 
-    (GitHub #123, #125)
-
-The GitHub #s could be relevant issues or PRs. They will probably not appear
-in the final newsletter, but are so that the person writing the newsletter
-has easy access to context if they have questions.
-
-Every entry in RELEASE.txt does NOT require an entry here. The newsletter is
-for communicating major changes that are of interest to anyone. Minor bugfixes,
-memory leak fixes, etc. do not require entries.
-
-    Configuration:
-    -------------
-* Deprecated and removed old SZIP library in favor of LIBAEC library
-
-    LIBAEC library has been used in HDF5 binaries as the szip library of choice
-    for a few years. We removed the options for using the old SZIP library. All
-    current szip and libaec options only work for building the libaec library.
-
-      

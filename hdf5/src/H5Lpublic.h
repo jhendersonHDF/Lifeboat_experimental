@@ -260,9 +260,13 @@ H5_DLL herr_t H5Lcopy(hid_t src_loc, const char *src_name, hid_t dst_loc, const 
  *          location and name, respectively, of the new hard link.
  *
  *          \p cur_name and \p dst_name are interpreted relative to \p cur_loc
- *          and \p dst_loc, respectively. If \p cur_loc and \p dst_loc are the
- *          same location, the HDF5 macro #H5L_SAME_LOC can be used for either
- *          parameter (but not both).
+ *          and \p dst_loc, respectively. If a given name begins with \c /,
+ *          then it will be interpreted as absolute path in the file.
+ *          The names of the created links will be the last element of
+ *          each provided path. Prior elements in each path are used to
+ *          locate the parent groups of each new link. If \p cur_loc and
+ *          \p dst_loc are the same location, the HDF5 macro
+ *          #H5L_SAME_LOC can be used for either parameter (but not both).
  *
  *          \p lcpl_id and \p lapl_id are the link creation and access property
  *          lists associated with the new link.
@@ -321,8 +325,10 @@ H5_DLL herr_t H5Lcreate_hard_async(hid_t cur_loc_id, const char *cur_name, hid_t
  *
  *          \p link_loc_id and \p link_name specify the location and name,
  *          respectively, of the new soft link. \p link_name is interpreted
- *          relative to \p link_loc_id and must contain only the name of the soft
- *          link; \p link_name may not contain any additional path elements.
+ *          as a path relative to \p link_loc_id, or an absolute path if it
+ *          begins with \c /. The name of the created link will be the last
+ *          element of the provided path. Prior elements in the path are
+ *          used to locate the parent group of the new link.
  *
  *          If \p link_loc_id is a group identifier, the object pointed to by
  *          \p link_name will be accessed as a member of that group. If
@@ -634,13 +640,13 @@ H5_DLL herr_t H5Lget_val_by_idx(hid_t loc_id, const char *group_name, H5_index_t
  *          denote a valid link access property list identifier. A call to
  *          H5Lexists() with arguments \c file, \c "/", and \c lapl
  *          returns a positive value; in other words,
- *          \Code{H5Lexists(file, "/", lapl)} returns a positive value.
+ *          \TText{H5Lexists(file, "/", lapl)} returns a positive value.
  *          In the HDF5 1.8 release, this function returns 0.</li>
  *       <li>Let \c root denote a valid HDF5 group identifier that refers to the
  *          root group of an HDF5 file, and let \c lapl denote a valid link
  *          access property list identifier. A call to H5Lexists() with
  *          arguments c root, \c "/", and \c lapl returns a positive value;
- *          in other words, \Code{H5Lexists(root, "/", lapl)} returns a positive
+ *          in other words, \TText{H5Lexists(root, "/", lapl)} returns a positive
  *          value. In the HDF5 1.8 release, this function returns 0.</li>
  *       </ol>
  *       Note that the function accepts link names and path names. This is
@@ -713,8 +719,8 @@ H5_DLL herr_t H5Lexists_async(hid_t loc_id, const char *name, hbool_t *exists, h
  *          \p corder specifies the link's creation order position, while
  *          \p corder_valid indicates whether the value in corder is valid.
  *
- *          If \p corder_valid is \c TRUE, the value in \p corder is known to
- *          be valid; if \p corder_valid is \c FALSE, the value in \p corder is
+ *          If \p corder_valid is \c true, the value in \p corder is known to
+ *          be valid; if \p corder_valid is \c false, the value in \p corder is
  *          presumed to be invalid; \p corder starts at zero (0) and is
  *          incremented by one (1) as new links are created. But
  *          higher-numbered entries are not adjusted when a lower-numbered link
@@ -758,7 +764,7 @@ H5_DLL herr_t H5Lget_info2(hid_t loc_id, const char *name, H5L_info2_t *linfo, h
  *
  * \return \herr_t
  *
- * \details H5get_info_by_idx2() returns the metadata for a link in a group
+ * \details H5Lget_info_by_idx2() returns the metadata for a link in a group
  *          according to a specified field or index and a specified order. The
  *          link for which information is to be returned is specified by \p
  *          idx_type, \p order, and \p n as follows:
@@ -813,7 +819,7 @@ H5_DLL herr_t H5Lget_info_by_idx2(hid_t loc_id, const char *group_name, H5_index
  * \return Returns the size of the link name if successful; otherwise returns a
  *         negative value.
  *
- * \details H5get_name_by_idx() retrieves the name of the \Emph{n}-th link in a
+ * \details H5Lget_name_by_idx() retrieves the name of the \Emph{n}-th link in a
  *          group, according to the specified order, \p order, within a specified
  *          field or index, \p idx_type.
  *
@@ -829,10 +835,7 @@ H5_DLL herr_t H5Lget_info_by_idx2(hid_t loc_id, const char *group_name, H5_index
  *          If \p loc_id specifies the group in which the link resides,
  *          \p group_name can be a dot (\c .).
  *
- *          The size in bytes of name is specified in \p size. If \p size is
- *          unknown, it can be determined via an initial H5Lget_name_by_idx()
- *          call with name set to NULL; the function's return value will be the
- *          size of the name.
+ *          \details_namelen{link,H5Lget_name_by_idx}
  *
  * \note Please note that in order for the specified index to correspond to the
  *       creation order index, \p order must be set to #H5_ITER_INC or
@@ -1190,7 +1193,11 @@ H5_DLL herr_t H5Lvisit_by_name2(hid_t loc_id, const char *group_name, H5_index_t
  *          named \p link_name at the location specified in \p link_loc_id with
  *          user-specified data \p udata.
  *
- *          \p link_name is interpreted relative to \p link_loc_id.
+ *          \p link_name is interpreted relative to \p link_loc_id. If
+ *          \p link_name begins with \c /, then it will be interpreted as
+ *          an absolute path in the file. The name of the created link
+ *          will be the last element of the provided path. Prior elements
+ *          in the path are used to locate the parent group of the new link.
  *
  *          Valid values for the link class of the new link, \p link_type,
  *          include #H5L_TYPE_EXTERNAL and any user-defined link classes that
@@ -1307,7 +1314,10 @@ H5_DLL herr_t H5Lunpack_elink_val(const void *ext_linkval /*in*/, size_t link_si
  *
  *          \p link_loc_id and \p link_name specify the location and name,
  *          respectively, of the new link. \p link_name is interpreted relative
- *          to \p link_loc_id.
+ *          to \p link_loc_id. If \p link_name begins with \c /, then it is
+ *          interpreted as an absolute path in the file. The name of the created
+ *          link will be the last element of the provided path. Prior elements in
+ *          the path are used to locate the parent group of the new link.
  *
  *          \p lcpl_id is the link creation property list used in creating the
  *          new link.
@@ -1510,8 +1520,8 @@ typedef herr_t (*H5L_iterate1_t)(hid_t group, const char *name, const H5L_info1_
  *          \c corder specifies the link's creation order position while
  *          \c corder_valid indicates whether the value in \c corder is valid.
  *
- *          If \c corder_valid is \c TRUE, the value in \c corder is known to
- *          be valid; if \c corder_valid is \c FALSE, the value in \c corder is
+ *          If \c corder_valid is \c true, the value in \c corder is known to
+ *          be valid; if \c corder_valid is \c false, the value in \c corder is
  *          presumed to be invalid;
  *
  *          \c corder starts at zero (0) and is incremented by one (1) as new
@@ -1565,7 +1575,7 @@ H5_DLL herr_t H5Lget_info1(hid_t loc_id, const char *name, H5L_info1_t *linfo /*
  *             the function H5Lget_info_by_idx2() and the macro
  *             H5Lget_info_by_idx().
  *
- * \details H5get_info_by_idx1() returns the metadata for a link in a group
+ * \details H5Lget_info_by_idx1() returns the metadata for a link in a group
  *          according to a specified field or index and a specified order.
  *
  *          The link for which information is to be returned is specified by \p

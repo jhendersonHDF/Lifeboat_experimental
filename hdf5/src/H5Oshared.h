@@ -57,7 +57,7 @@ H5O_SHARED_DECODE(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags, unsigned *iofla
     /* Check for shared message */
     if (mesg_flags & H5O_MSG_FLAG_SHARED) {
         /* Retrieve native message info indirectly through shared message */
-        if (NULL == (ret_value = H5O__shared_decode(f, open_oh, ioflags, p, H5O_SHARED_TYPE)))
+        if (NULL == (ret_value = H5O__shared_decode(f, open_oh, ioflags, p_size, p, H5O_SHARED_TYPE)))
             HGOTO_ERROR(H5E_OHDR, H5E_CANTDECODE, NULL, "unable to decode shared message");
 
             /* We currently do not support automatically fixing shared messages */
@@ -91,7 +91,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static inline herr_t
-H5O_SHARED_ENCODE(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg)
+H5O_SHARED_ENCODE(H5F_t *f, bool disable_shared, size_t H5_ATTR_UNUSED p_size, uint8_t *p, const void *_mesg)
 {
     const H5O_shared_t *sh_mesg =
         (const H5O_shared_t *)_mesg; /* Pointer to shared message portion of actual message */
@@ -142,7 +142,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static inline size_t
-H5O_SHARED_SIZE(const H5F_t *f, hbool_t disable_shared, const void *_mesg)
+H5O_SHARED_SIZE(const H5F_t *f, bool disable_shared, const void *_mesg)
 {
     const H5O_shared_t *sh_mesg =
         (const H5O_shared_t *)_mesg; /* Pointer to shared message portion of actual message */
@@ -281,7 +281,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static inline void *
-H5O_SHARED_COPY_FILE(H5F_t *file_src, void *_native_src, H5F_t *file_dst, hbool_t *recompute_size,
+H5O_SHARED_COPY_FILE(H5F_t *file_src, void *_native_src, H5F_t *file_dst, bool *recompute_size,
                      unsigned *mesg_flags, H5O_copy_t *cpy_info, void *udata)
 {
     void *dst_mesg  = NULL; /* Destination message */

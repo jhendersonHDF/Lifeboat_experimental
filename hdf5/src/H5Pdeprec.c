@@ -149,8 +149,8 @@
     routine returns an error value.
 
         The 'delete' callback is called when a property is deleted from a
-    property list.  H5P_prp_del_func_t is defined as:
-        typedef herr_t (*H5P_prp_del_func_t)(hid_t prop_id, const char *name,
+    property list.  H5P_prp_delete_func_t is defined as:
+        typedef herr_t (*H5P_prp_delete_func_t)(hid_t prop_id, const char *name,
             size_t size, void *value);
     where the parameters to the callback function are:
         hid_t prop_id;      IN: The ID of the property list the property is deleted from.
@@ -217,8 +217,6 @@ H5Pregister1(hid_t cls_id, const char *name, size_t size, void *def_value, H5P_p
     herr_t          ret_value;   /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE10("e", "i*sz*xPCPSPGPDPOPL", cls_id, name, size, def_value, prp_create, prp_set, prp_get,
-              prp_delete, prp_copy, prp_close);
 
     /* Check arguments. */
     if (NULL == (pclass = (H5P_genclass_t *)H5I_object_verify(cls_id, H5I_GENPROP_CLS)))
@@ -316,8 +314,8 @@ done:
     routine returns an error value.
 
         The 'delete' callback is called when a property is deleted from a
-    property list.  H5P_prp_del_func_t is defined as:
-        typedef herr_t (*H5P_prp_del_func_t)(hid_t prop_id, const char *name,
+    property list.  H5P_prp_delete_func_t is defined as:
+        typedef herr_t (*H5P_prp_delete_func_t)(hid_t prop_id, const char *name,
             size_t size, void *value);
     where the parameters to the callback function are:
         hid_t prop_id;      IN: The ID of the property list the property is deleted from.
@@ -401,8 +399,6 @@ H5Pinsert1(hid_t plist_id, const char *name, size_t size, void *value, H5P_prp_s
     herr_t          ret_value; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE9("e", "i*sz*xPSPGPDPOPL", plist_id, name, size, value, prp_set, prp_get, prp_delete, prp_copy,
-             prp_close);
 
     /* Check arguments. */
     if (NULL == (plist = (H5P_genplist_t *)H5I_object_verify(plist_id, H5I_GENPROP_LST)))
@@ -449,7 +445,6 @@ H5Pget_version(hid_t plist_id, unsigned *super /*out*/, unsigned *freelist /*out
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE5("e", "ixxxx", plist_id, super, freelist, stab, shhdr);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
@@ -499,18 +494,17 @@ H5Pencode1(hid_t plist_id, void *buf, size_t *nalloc)
     herr_t          ret_value    = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "i*x*z", plist_id, buf, nalloc);
 
     /* Check arguments. */
     if (NULL == (plist = (H5P_genplist_t *)H5I_object_verify(plist_id, H5I_GENPROP_LST)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list");
 
     /* Verify access property list and set up collective metadata if appropriate */
-    if (H5CX_set_apl(&temp_fapl_id, H5P_CLS_FACC, H5I_INVALID_HID, TRUE) < 0)
+    if (H5CX_set_apl(&temp_fapl_id, H5P_CLS_FACC, H5I_INVALID_HID, true) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info");
 
     /* Call the internal encode routine */
-    if ((ret_value = H5P__encode(plist, TRUE, buf, nalloc)) < 0)
+    if ((ret_value = H5P__encode(plist, true, buf, nalloc)) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "unable to encode property list");
 
 done:
@@ -531,14 +525,13 @@ H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t thresh
 {
 
     H5F_fspace_strategy_t new_strategy;                                 /* File space strategy type */
-    hbool_t               new_persist   = H5F_FREE_SPACE_PERSIST_DEF;   /* Persisting free-space or not */
+    bool                  new_persist   = H5F_FREE_SPACE_PERSIST_DEF;   /* Persisting free-space or not */
     hsize_t               new_threshold = H5F_FREE_SPACE_THRESHOLD_DEF; /* Free-space section threshold */
     H5F_file_space_type_t in_strategy   = strategy;                     /* Input strategy */
     hsize_t               in_threshold  = threshold;                    /* Input threshold */
     herr_t                ret_value     = SUCCEED;                      /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "iFth", plist_id, strategy, threshold);
 
     if ((unsigned)in_strategy >= H5F_FILE_SPACE_NTYPES)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid strategy");
@@ -557,7 +550,7 @@ H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t thresh
     switch (in_strategy) {
         case H5F_FILE_SPACE_ALL_PERSIST:
             new_strategy  = H5F_FSPACE_STRATEGY_FSM_AGGR;
-            new_persist   = TRUE;
+            new_persist   = true;
             new_threshold = in_threshold;
             break;
 
@@ -600,12 +593,11 @@ herr_t
 H5Pget_file_space(hid_t plist_id, H5F_file_space_type_t *strategy /*out*/, hsize_t *threshold /*out*/)
 {
     H5F_fspace_strategy_t new_strategy;        /* File space strategy type */
-    hbool_t               new_persist;         /* Persisting free-space or not */
+    bool                  new_persist;         /* Persisting free-space or not */
     hsize_t               new_threshold;       /* Free-space section threshold */
     herr_t                ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "ixx", plist_id, strategy, threshold);
 
     /* Get current file space info */
     if (H5Pget_file_space_strategy(plist_id, &new_strategy, &new_persist, &new_threshold) < 0)

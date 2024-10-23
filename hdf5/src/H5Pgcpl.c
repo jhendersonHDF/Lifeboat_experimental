@@ -31,7 +31,6 @@
 #include "H5private.h"  /* Generic Functions                        */
 #include "H5Eprivate.h" /* Error handling                           */
 #include "H5Gprivate.h" /* Groups                                   */
-#include "H5Iprivate.h" /* IDs                                      */
 #include "H5Oprivate.h" /* Object headers                           */
 #include "H5Ppkg.h"     /* Property lists                           */
 
@@ -150,7 +149,6 @@ H5Pset_local_heap_size_hint(hid_t plist_id, size_t size_hint)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "iz", plist_id, size_hint);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_GROUP_CREATE)))
@@ -187,7 +185,6 @@ H5Pget_local_heap_size_hint(hid_t plist_id, size_t *size_hint /*out*/)
     herr_t ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", plist_id, size_hint);
 
     if (size_hint) {
         H5P_genplist_t *plist; /* Property list pointer */
@@ -232,7 +229,6 @@ H5Pset_link_phase_change(hid_t plist_id, unsigned max_compact, unsigned min_dens
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "iIuIu", plist_id, max_compact, min_dense);
 
     /* Range check values */
     if (max_compact < min_dense)
@@ -252,9 +248,9 @@ H5Pset_link_phase_change(hid_t plist_id, unsigned max_compact, unsigned min_dens
 
     /* Update fields */
     if (max_compact != H5G_CRT_GINFO_MAX_COMPACT || min_dense != H5G_CRT_GINFO_MIN_DENSE)
-        ginfo.store_link_phase_change = TRUE;
+        ginfo.store_link_phase_change = true;
     else
-        ginfo.store_link_phase_change = FALSE;
+        ginfo.store_link_phase_change = false;
     ginfo.max_compact = (uint16_t)max_compact;
     ginfo.min_dense   = (uint16_t)min_dense;
 
@@ -282,7 +278,6 @@ H5Pget_link_phase_change(hid_t plist_id, unsigned *max_compact /*out*/, unsigned
     herr_t ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "ixx", plist_id, max_compact, min_dense);
 
     /* Get values */
     if (max_compact || min_dense) {
@@ -332,7 +327,6 @@ H5Pset_est_link_info(hid_t plist_id, unsigned est_num_entries, unsigned est_name
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "iIuIu", plist_id, est_num_entries, est_name_len);
 
     /* Range check values */
     if (est_num_entries > 65535)
@@ -350,9 +344,9 @@ H5Pset_est_link_info(hid_t plist_id, unsigned est_num_entries, unsigned est_name
 
     /* Update fields */
     if (est_num_entries != H5G_CRT_GINFO_EST_NUM_ENTRIES || est_name_len != H5G_CRT_GINFO_EST_NAME_LEN)
-        ginfo.store_est_entry_info = TRUE;
+        ginfo.store_est_entry_info = true;
     else
-        ginfo.store_est_entry_info = FALSE;
+        ginfo.store_est_entry_info = false;
     ginfo.est_num_entries = (uint16_t)est_num_entries;
     ginfo.est_name_len    = (uint16_t)est_name_len;
 
@@ -380,7 +374,6 @@ H5Pget_est_link_info(hid_t plist_id, unsigned *est_num_entries /*out*/, unsigned
     herr_t ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "ixx", plist_id, est_num_entries, est_name_len);
 
     /* Get values */
     if (est_num_entries || est_name_len) {
@@ -422,7 +415,6 @@ H5Pset_link_creation_order(hid_t plist_id, unsigned crt_order_flags)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "iIu", plist_id, crt_order_flags);
 
     /* Check for bad combination of flags */
     if (!(crt_order_flags & H5P_CRT_ORDER_TRACKED) && (crt_order_flags & H5P_CRT_ORDER_INDEXED))
@@ -437,8 +429,8 @@ H5Pset_link_creation_order(hid_t plist_id, unsigned crt_order_flags)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get link info");
 
     /* Update fields */
-    linfo.track_corder = (hbool_t)((crt_order_flags & H5P_CRT_ORDER_TRACKED) ? TRUE : FALSE);
-    linfo.index_corder = (hbool_t)((crt_order_flags & H5P_CRT_ORDER_INDEXED) ? TRUE : FALSE);
+    linfo.track_corder = (bool)((crt_order_flags & H5P_CRT_ORDER_TRACKED) ? true : false);
+    linfo.index_corder = (bool)((crt_order_flags & H5P_CRT_ORDER_INDEXED) ? true : false);
 
     /* Set link info */
     if (H5P_set(plist, H5G_CRT_LINK_INFO_NAME, &linfo) < 0)
@@ -464,7 +456,6 @@ H5Pget_link_creation_order(hid_t plist_id, unsigned *crt_order_flags /*out*/)
     herr_t ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", plist_id, crt_order_flags);
 
     /* Get values */
     if (crt_order_flags) {
@@ -494,7 +485,7 @@ done:
  * Function:       H5P__gcrt_group_info_enc
  *
  * Purpose:        Callback routine which is called whenever the group
- *                 property in the dataset access property list is
+ *                 info property in the dataset access property list is
  *                 encoded.
  *
  * Return:	   Success:	Non-negative
@@ -556,15 +547,15 @@ H5P__gcrt_group_info_dec(const void **_pp, void *_value)
 
     /* Update fields */
     if (ginfo->max_compact != H5G_CRT_GINFO_MAX_COMPACT || ginfo->min_dense != H5G_CRT_GINFO_MIN_DENSE)
-        ginfo->store_link_phase_change = TRUE;
+        ginfo->store_link_phase_change = true;
     else
-        ginfo->store_link_phase_change = FALSE;
+        ginfo->store_link_phase_change = false;
 
     if (ginfo->est_num_entries != H5G_CRT_GINFO_EST_NUM_ENTRIES ||
         ginfo->est_name_len != H5G_CRT_GINFO_EST_NAME_LEN)
-        ginfo->store_est_entry_info = TRUE;
+        ginfo->store_est_entry_info = true;
     else
-        ginfo->store_est_entry_info = FALSE;
+        ginfo->store_est_entry_info = false;
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__gcrt_group_info_dec() */
@@ -573,7 +564,7 @@ H5P__gcrt_group_info_dec(const void **_pp, void *_value)
  * Function:       H5P__gcrt_link_info_enc
  *
  * Purpose:        Callback routine which is called whenever the link
- *                 property in the dataset access property list is
+ *                 info property in the dataset access property list is
  *                 encoded.
  *
  * Return:	   Success:	Non-negative
@@ -641,8 +632,8 @@ H5P__gcrt_link_info_dec(const void **_pp, void *_value)
     H5_DECODE_UNSIGNED(*pp, crt_order_flags);
 
     /* Update fields */
-    linfo->track_corder = (hbool_t)((crt_order_flags & H5P_CRT_ORDER_TRACKED) ? TRUE : FALSE);
-    linfo->index_corder = (hbool_t)((crt_order_flags & H5P_CRT_ORDER_INDEXED) ? TRUE : FALSE);
+    linfo->track_corder = (bool)((crt_order_flags & H5P_CRT_ORDER_TRACKED) ? true : false);
+    linfo->index_corder = (bool)((crt_order_flags & H5P_CRT_ORDER_INDEXED) ? true : false);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

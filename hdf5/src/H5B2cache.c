@@ -60,7 +60,7 @@
 /* Metadata cache callbacks */
 static herr_t H5B2__cache_hdr_get_initial_load_size(void *udata, size_t *image_len);
 static htri_t H5B2__cache_hdr_verify_chksum(const void *image_ptr, size_t len, void *udata);
-static void  *H5B2__cache_hdr_deserialize(const void *image, size_t len, void *udata, hbool_t *dirty);
+static void  *H5B2__cache_hdr_deserialize(const void *image, size_t len, void *udata, bool *dirty);
 static herr_t H5B2__cache_hdr_image_len(const void *thing, size_t *image_len);
 static herr_t H5B2__cache_hdr_serialize(const H5F_t *f, void *image, size_t len, void *thing);
 static herr_t H5B2__cache_hdr_notify(H5AC_notify_action_t action, void *thing);
@@ -68,7 +68,7 @@ static herr_t H5B2__cache_hdr_free_icr(void *thing);
 
 static herr_t H5B2__cache_int_get_initial_load_size(void *udata, size_t *image_len);
 static htri_t H5B2__cache_int_verify_chksum(const void *image_ptr, size_t len, void *udata);
-static void  *H5B2__cache_int_deserialize(const void *image, size_t len, void *udata, hbool_t *dirty);
+static void  *H5B2__cache_int_deserialize(const void *image, size_t len, void *udata, bool *dirty);
 static herr_t H5B2__cache_int_image_len(const void *thing, size_t *image_len);
 static herr_t H5B2__cache_int_serialize(const H5F_t *f, void *image, size_t len, void *thing);
 static herr_t H5B2__cache_int_notify(H5AC_notify_action_t action, void *thing);
@@ -76,7 +76,7 @@ static herr_t H5B2__cache_int_free_icr(void *thing);
 
 static herr_t H5B2__cache_leaf_get_initial_load_size(void *udata, size_t *image_len);
 static htri_t H5B2__cache_leaf_verify_chksum(const void *image_ptr, size_t len, void *udata);
-static void  *H5B2__cache_leaf_deserialize(const void *image, size_t len, void *udata, hbool_t *dirty);
+static void  *H5B2__cache_leaf_deserialize(const void *image, size_t len, void *udata, bool *dirty);
 static herr_t H5B2__cache_leaf_image_len(const void *thing, size_t *image_len);
 static herr_t H5B2__cache_leaf_serialize(const H5F_t *f, void *image, size_t len, void *thing);
 static herr_t H5B2__cache_leaf_notify(H5AC_notify_action_t action, void *thing);
@@ -181,7 +181,7 @@ H5B2__cache_hdr_get_initial_load_size(void *_udata, size_t *image_len)
  * Purpose:     Verify the computed checksum of the data structure is the
  *              same as the stored chksum.
  *
- * Return:      Success:        TRUE/FALSE
+ * Return:      Success:        true/false
  *              Failure:        Negative
  *
  *-------------------------------------------------------------------------
@@ -192,19 +192,21 @@ H5B2__cache_hdr_verify_chksum(const void *_image, size_t len, void H5_ATTR_UNUSE
     const uint8_t *image = (const uint8_t *)_image; /* Pointer into raw data buffer */
     uint32_t       stored_chksum;                   /* Stored metadata checksum value */
     uint32_t       computed_chksum;                 /* Computed metadata checksum value */
-    htri_t         ret_value = TRUE;                /* Return value */
+    htri_t         ret_value = true;                /* Return value */
 
-    FUNC_ENTER_PACKAGE_NOERR
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     assert(image);
 
     /* Get stored and computed checksums */
-    H5F_get_checksums(image, len, &stored_chksum, &computed_chksum);
+    if (H5F_get_checksums(image, len, &stored_chksum, &computed_chksum) < 0)
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTGET, FAIL, "can't get checksums");
 
     if (stored_chksum != computed_chksum)
-        ret_value = FALSE;
+        ret_value = false;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5B2__cache_hdr_verify_chksum() */
 
@@ -220,7 +222,7 @@ H5B2__cache_hdr_verify_chksum(const void *_image, size_t len, void H5_ATTR_UNUSE
  */
 static void *
 H5B2__cache_hdr_deserialize(const void *_image, size_t H5_ATTR_UNUSED len, void *_udata,
-                            hbool_t H5_ATTR_UNUSED *dirty)
+                            bool H5_ATTR_UNUSED *dirty)
 {
     H5B2_hdr_t          *hdr   = NULL; /* B-tree header */
     H5B2_hdr_cache_ud_t *udata = (H5B2_hdr_cache_ud_t *)_udata;
@@ -542,7 +544,7 @@ H5B2__cache_int_get_initial_load_size(void *_udata, size_t *image_len)
  * Purpose:     Verify the computed checksum of the data structure is the
  *              same as the stored chksum.
  *
- * Return:      Success:        TRUE/FALSE
+ * Return:      Success:        true/false
  *              Failure:        Negative
  *
  *-------------------------------------------------------------------------
@@ -555,9 +557,9 @@ H5B2__cache_int_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, voi
     size_t                    chk_size;         /* Exact size of the node with checksum at the end */
     uint32_t                  stored_chksum;    /* Stored metadata checksum value */
     uint32_t                  computed_chksum;  /* Computed metadata checksum value */
-    htri_t                    ret_value = TRUE; /* Return value */
+    htri_t                    ret_value = true; /* Return value */
 
-    FUNC_ENTER_PACKAGE_NOERR
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     assert(image);
@@ -568,11 +570,13 @@ H5B2__cache_int_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, voi
                ((size_t)(udata->nrec + 1) * H5B2_INT_POINTER_SIZE(udata->hdr, udata->depth));
 
     /* Get stored and computed checksums */
-    H5F_get_checksums(image, chk_size, &stored_chksum, &computed_chksum);
+    if (H5F_get_checksums(image, chk_size, &stored_chksum, &computed_chksum) < 0)
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTGET, FAIL, "can't get checksums");
 
     if (stored_chksum != computed_chksum)
-        ret_value = FALSE;
+        ret_value = false;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5B2__cache_int_verify_chksum() */
 
@@ -588,7 +592,7 @@ H5B2__cache_int_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, voi
  */
 static void *
 H5B2__cache_int_deserialize(const void *_image, size_t H5_ATTR_UNUSED len, void *_udata,
-                            hbool_t H5_ATTR_UNUSED *dirty)
+                            bool H5_ATTR_UNUSED *dirty)
 {
     H5B2_internal_cache_ud_t *udata    = (H5B2_internal_cache_ud_t *)_udata; /* Pointer to user data */
     H5B2_internal_t          *internal = NULL;                               /* Internal node read */
@@ -941,7 +945,7 @@ H5B2__cache_leaf_get_initial_load_size(void *_udata, size_t *image_len)
  * Purpose:     Verify the computed checksum of the data structure is the
  *              same as the stored chksum.
  *
- * Return:      Success:        TRUE/FALSE
+ * Return:      Success:        true/false
  *              Failure:        Negative
  *
  *-------------------------------------------------------------------------
@@ -954,9 +958,9 @@ H5B2__cache_leaf_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, vo
     size_t                    chk_size;         /* Exact size of the node with checksum at the end */
     uint32_t                  stored_chksum;    /* Stored metadata checksum value */
     uint32_t                  computed_chksum;  /* Computed metadata checksum value */
-    htri_t                    ret_value = TRUE; /* Return value */
+    htri_t                    ret_value = true; /* Return value */
 
-    FUNC_ENTER_PACKAGE_NOERR
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     assert(image);
@@ -966,11 +970,13 @@ H5B2__cache_leaf_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, vo
     chk_size = H5B2_LEAF_PREFIX_SIZE + (udata->nrec * udata->hdr->rrec_size);
 
     /* Get stored and computed checksums */
-    H5F_get_checksums(image, chk_size, &stored_chksum, &computed_chksum);
+    if (H5F_get_checksums(image, chk_size, &stored_chksum, &computed_chksum) < 0)
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTGET, FAIL, "can't get checksums");
 
     if (stored_chksum != computed_chksum)
-        ret_value = FALSE;
+        ret_value = false;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5B2__cache_leaf_verify_chksum() */
 
@@ -986,7 +992,7 @@ H5B2__cache_leaf_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, vo
  */
 static void *
 H5B2__cache_leaf_deserialize(const void *_image, size_t H5_ATTR_UNUSED len, void *_udata,
-                             hbool_t H5_ATTR_UNUSED *dirty)
+                             bool H5_ATTR_UNUSED *dirty)
 {
     H5B2_leaf_cache_ud_t *udata = (H5B2_leaf_cache_ud_t *)_udata;
     H5B2_leaf_t          *leaf  = NULL;                    /* Pointer to lead node loaded */

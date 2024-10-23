@@ -69,7 +69,7 @@ test_skiplist_init(void)
     CHECK_PTR(rev_sort_rand_num, "malloc");
 
     /* Initialize random number seed */
-    curr_time = HDtime(NULL);
+    curr_time = time(NULL);
     HDsrandom((unsigned)curr_time);
 
     /* Create randomized set of numbers */
@@ -1519,7 +1519,7 @@ test_skiplist_remove_first_many(void)
     /* Remove objects from the skip list */
     for (u = 0; u < NUM_ELEMS; u++) {
         found_item = (int *)H5SL_remove_first(slist);
-        VERIFY(*found_item > prev_item, TRUE, "H5SL_remove_first");
+        VERIFY(*found_item > prev_item, true, "H5SL_remove_first");
         prev_item = *found_item;
     } /* end for */
 

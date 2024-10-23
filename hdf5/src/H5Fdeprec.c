@@ -36,7 +36,6 @@
 #include "H5Eprivate.h"  /* Error handling                           */
 #include "H5Fpkg.h"      /* File access                              */
 #include "H5Iprivate.h"  /* IDs                                      */
-#include "H5SMprivate.h" /* Shared object header messages            */
 
 #include "H5VLnative_private.h" /* Native VOL connector                     */
 
@@ -94,7 +93,6 @@ H5Fget_info1(hid_t obj_id, H5F_info1_t *finfo /*out*/)
     herr_t                           ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", obj_id, finfo);
 
     /* Check args */
     if (!finfo)
@@ -138,7 +136,7 @@ done:
  *              driver when attempting to open the file when in fact it
  *              should use all known file drivers.
  *
- * Return:      TRUE/FALSE/FAIL
+ * Return:      true/false/FAIL
  *
  *-------------------------------------------------------------------------
  */
@@ -146,11 +144,10 @@ htri_t
 H5Fis_hdf5(const char *name)
 {
     H5VL_file_specific_args_t vol_cb_args;           /* Arguments to VOL callback */
-    hbool_t                   is_accessible = FALSE; /* Whether file is accessible */
+    bool                      is_accessible = false; /* Whether file is accessible */
     htri_t                    ret_value;             /* Return value */
 
     FUNC_ENTER_API((-1))
-    H5TRACE1("t", "*s", name);
 
     /* Check args and all the boring stuff. */
     if (!name || !*name)
@@ -215,10 +212,9 @@ H5Fset_latest_format(hid_t file_id, hbool_t latest_format)
     herr_t                           ret_value = SUCCEED;           /* Return value                 */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ib", file_id, latest_format);
 
     /* Check args */
-    if (NULL == (vol_obj = (H5VL_object_t *)H5I_object_verify(file_id, H5I_FILE)))
+    if (NULL == (vol_obj = H5VL_vol_object_verify(file_id, H5I_FILE)))
         HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "not a file ID");
 
     /* Set up collective metadata if appropriate */

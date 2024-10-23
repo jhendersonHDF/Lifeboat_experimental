@@ -32,7 +32,6 @@
 #include "H5private.h"   /* Generic Functions			*/
 #include "H5Eprivate.h"  /* Error handling		  	*/
 #include "H5Fprivate.h"  /* File access				*/
-#include "H5Gprivate.h"  /* Groups				*/
 #include "H5HFprivate.h" /* Fractal heap				*/
 #include "H5MMprivate.h" /* Memory management			*/
 #include "H5Opkg.h"      /* Object headers			*/
@@ -156,7 +155,7 @@ H5O__shared_read(H5F_t *f, H5O_t *open_oh, unsigned *ioflags, const H5O_shared_t
         /* Build the object location for the shared message's object header */
         oloc.file         = f;
         oloc.addr         = shared->u.loc.oh_addr;
-        oloc.holding_file = FALSE;
+        oloc.holding_file = false;
 
         if (open_oh && oloc.addr == H5O_OH_GET_ADDR(open_oh)) {
             /* The shared message is in the already opened object header.  This
@@ -238,14 +237,14 @@ H5O__shared_link_adj(H5F_t *f, H5O_t *open_oh, const H5O_msg_class_t *type, H5O_
         /* Build the object location for the shared message's object header */
         oloc.file         = f;
         oloc.addr         = shared->u.loc.oh_addr;
-        oloc.holding_file = FALSE;
+        oloc.holding_file = false;
 
         if (open_oh && oloc.addr == H5O_OH_GET_ADDR(open_oh)) {
             /* The shared message is in the already opened object header.  This
              * is possible, for example, if an attribute's datatype is shared in
              * the same object header the attribute is in.  Adjust the link
              * count directly. */
-            hbool_t deleted = FALSE; /* This is used only to satisfy H5O__link_oh */
+            bool deleted = false; /* This is used only to satisfy H5O__link_oh */
 
             if (H5O__link_oh(f, adjust, open_oh, &deleted) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_LINKCOUNT, FAIL, "unable to adjust shared object link count");
@@ -287,12 +286,13 @@ done:
  *-------------------------------------------------------------------------
  */
 void *
-H5O__shared_decode(H5F_t *f, H5O_t *open_oh, unsigned *ioflags, const uint8_t *buf,
+H5O__shared_decode(H5F_t *f, H5O_t *open_oh, unsigned *ioflags, size_t buf_size, const uint8_t *buf,
                    const H5O_msg_class_t *type)
 {
-    H5O_shared_t sh_mesg;          /* Shared message info */
-    unsigned     version;          /* Shared message version */
-    void        *ret_value = NULL; /* Return value */
+    const uint8_t *buf_end = buf + buf_size - 1; /* End of the buffer */
+    H5O_shared_t   sh_mesg;                      /* Shared message info */
+    unsigned       version;                      /* Shared message version */
+    void          *ret_value = NULL;             /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -302,6 +302,8 @@ H5O__shared_decode(H5F_t *f, H5O_t *open_oh, unsigned *ioflags, const uint8_t *b
     assert(type);
 
     /* Version */
+    if (H5_IS_BUFFER_OVERFLOW(buf, 1, buf_end))
+        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     version = *buf++;
     if (version < H5O_SHARED_VERSION_1 || version > H5O_SHARED_VERSION_LATEST)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTLOAD, NULL, "bad version number for shared object message");
@@ -309,6 +311,8 @@ H5O__shared_decode(H5F_t *f, H5O_t *open_oh, unsigned *ioflags, const uint8_t *b
     /* Get the shared information type
      * Flags are unused before version 3.
      */
+    if (H5_IS_BUFFER_OVERFLOW(buf, 1, buf_end))
+        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     if (version >= H5O_SHARED_VERSION_2)
         sh_mesg.type = *buf++;
     else {
@@ -317,8 +321,11 @@ H5O__shared_decode(H5F_t *f, H5O_t *open_oh, unsigned *ioflags, const uint8_t *b
     } /* end else */
 
     /* Skip reserved bytes (for version 1) */
-    if (version == H5O_SHARED_VERSION_1)
+    if (version == H5O_SHARED_VERSION_1) {
+        if (H5_IS_BUFFER_OVERFLOW(buf, 6, buf_end))
+            HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
         buf += 6;
+    }
 
     /* Body */
     if (version == H5O_SHARED_VERSION_1) {
@@ -326,7 +333,11 @@ H5O__shared_decode(H5F_t *f, H5O_t *open_oh, unsigned *ioflags, const uint8_t *b
         sh_mesg.u.loc.index = 0;
 
         /* Decode stored "symbol table entry" into message location */
+        if (H5_IS_BUFFER_OVERFLOW(buf, H5F_SIZEOF_SIZE(f), buf_end))
+            HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
         buf += H5F_SIZEOF_SIZE(f); /* Skip over local heap address */
+        if (H5_IS_BUFFER_OVERFLOW(buf, H5F_sizeof_addr(f), buf_end))
+            HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
         H5F_addr_decode(f, &buf, &(sh_mesg.u.loc.oh_addr));
     } /* end if */
     else if (version >= H5O_SHARED_VERSION_2) {
@@ -335,6 +346,8 @@ H5O__shared_decode(H5F_t *f, H5O_t *open_oh, unsigned *ioflags, const uint8_t *b
          */
         if (sh_mesg.type == H5O_SHARE_TYPE_SOHM) {
             assert(version >= H5O_SHARED_VERSION_3);
+            if (H5_IS_BUFFER_OVERFLOW(buf, sizeof(sh_mesg.u.heap_id), buf_end))
+                HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
             H5MM_memcpy(&sh_mesg.u.heap_id, buf, sizeof(sh_mesg.u.heap_id));
         } /* end if */
         else {
@@ -345,6 +358,8 @@ H5O__shared_decode(H5F_t *f, H5O_t *open_oh, unsigned *ioflags, const uint8_t *b
                 sh_mesg.type = H5O_SHARE_TYPE_COMMITTED;
 
             sh_mesg.u.loc.index = 0;
+            if (H5_IS_BUFFER_OVERFLOW(buf, H5F_sizeof_addr(f), buf_end))
+                HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
             H5F_addr_decode(f, &buf, &sh_mesg.u.loc.oh_addr);
         } /* end else */
     }     /* end else if */
@@ -540,7 +555,7 @@ done:
 herr_t
 H5O__shared_copy_file(H5F_t H5_ATTR_NDEBUG_UNUSED *file_src, H5F_t *file_dst,
                       const H5O_msg_class_t *mesg_type, const void *_native_src, void *_native_dst,
-                      hbool_t H5_ATTR_UNUSED *recompute_size, unsigned *mesg_flags,
+                      bool H5_ATTR_UNUSED *recompute_size, unsigned *mesg_flags,
                       H5O_copy_t H5_ATTR_NDEBUG_UNUSED *cpy_info, void H5_ATTR_UNUSED *udata)
 {
     const H5O_shared_t *shared_src =
@@ -629,7 +644,7 @@ H5O__shared_post_copy_file(H5F_t *f, const H5O_msg_class_t *mesg_type, const H5O
         dst_oloc.file = f;
         src_oloc.file = shared_src->file;
         src_oloc.addr = shared_src->u.loc.oh_addr;
-        if (H5O_copy_header_map(&src_oloc, &dst_oloc, cpy_info, FALSE, NULL, NULL) < 0)
+        if (H5O_copy_header_map(&src_oloc, &dst_oloc, cpy_info, false, NULL, NULL) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, FAIL, "unable to copy object");
 
         /* Set up destination message's shared info */
