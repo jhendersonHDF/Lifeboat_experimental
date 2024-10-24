@@ -95,7 +95,7 @@ static int H5I__iterate_pub_cb(void *obj, hid_t id, void *udata);
  *-------------------------------------------------------------------------
  */
 H5I_type_t
-H5Iregister_type(size_t H5_ATTR_DEBUG_API_USED hash_size, unsigned reserved, H5I_free_t free_func)
+H5Iregister_type(size_t H5_ATTR_UNUSED hash_size, unsigned reserved, H5I_free_t free_func)
 {
     hbool_t      expected  = FALSE;
     hbool_t      result;
@@ -104,7 +104,6 @@ H5Iregister_type(size_t H5_ATTR_DEBUG_API_USED hash_size, unsigned reserved, H5I
     H5I_type_t   ret_value = H5I_BADID; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(H5I_BADID)
-    H5TRACE3("It", "zIuIf", hash_size, reserved, free_func);
 
     H5I__enter(TRUE);
 
@@ -288,7 +287,6 @@ H5Itype_exists(H5I_type_t type)
     htri_t ret_value = TRUE; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(FAIL)
-    H5TRACE1("t", "It", type);
 
     H5I__enter(TRUE);
 
@@ -371,8 +369,6 @@ H5Inmembers(H5I_type_t type, hsize_t *num_members)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(FAIL)
-
-    H5TRACE2("e", "It*h", type, num_members);
 
     H5I__enter(TRUE);
 
@@ -499,7 +495,6 @@ H5Iclear_type(H5I_type_t type, hbool_t force)
     herr_t ret_value = FAIL; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(FAIL)
-    H5TRACE2("e", "Itb", type, force);
 
     H5I__enter(TRUE);
 
@@ -575,7 +570,6 @@ H5Idestroy_type(H5I_type_t type)
     herr_t ret_value = FAIL; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(FAIL)
-    H5TRACE1("e", "It", type);
 
     H5I__enter(TRUE);
 
@@ -646,7 +640,6 @@ H5Iregister(H5I_type_t type, const void *object)
     hid_t ret_value = H5I_INVALID_HID; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(H5I_INVALID_HID)
-    H5TRACE2("i", "It*x", type, object);
 
     H5I__enter(TRUE);
 
@@ -716,7 +709,6 @@ H5Iregister_future(H5I_type_t type, const void *object, H5I_future_realize_func_
     hid_t ret_value = H5I_INVALID_HID; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(H5I_INVALID_HID)
-    H5TRACE4("i", "It*xIRID", type, object, realize_cb, discard_cb);
 
     H5I__enter(TRUE);
 
@@ -797,7 +789,6 @@ H5Iobject_verify(hid_t id, H5I_type_t type)
     void *ret_value = NULL; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(NULL)
-    H5TRACE2("*x", "iIt", id, type);
 
     H5I__enter(TRUE);
 
@@ -881,7 +872,6 @@ H5Iget_type(hid_t id)
     H5I_type_t ret_value = H5I_BADID; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(H5I_BADID)
-    H5TRACE1("It", "i", id);
 
     H5I__enter(TRUE);
 
@@ -960,7 +950,6 @@ H5Iremove_verify(hid_t id, H5I_type_t type)
     void *ret_value = NULL; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(NULL)
-    H5TRACE2("*x", "iIt", id, type);
 
     H5I__enter(TRUE);
 
@@ -1039,7 +1028,6 @@ H5Idec_ref(hid_t id)
     int ret_value = 0; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX((-1))
-    H5TRACE1("Is", "i", id);
 
     H5I__enter(TRUE);
 
@@ -1115,7 +1103,6 @@ H5Iinc_ref(hid_t id)
     int ret_value = -1; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX((-1))
-    H5TRACE1("Is", "i", id);
 
     H5I__enter(TRUE);
 
@@ -1186,7 +1173,6 @@ H5Iget_ref(hid_t id)
     int ret_value = -1; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX((-1))
-    H5TRACE1("Is", "i", id);
 
     H5I__enter(TRUE);
 
@@ -1257,7 +1243,6 @@ H5Iinc_type_ref(H5I_type_t type)
     int ret_value = -1; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX((-1))
-    H5TRACE1("Is", "It", type);
 
     H5I__enter(TRUE);
 
@@ -1350,7 +1335,6 @@ H5Idec_type_ref(H5I_type_t type)
     herr_t ret_value = 0; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX((-1))
-    H5TRACE1("e", "It", type);
 
     H5I__enter(TRUE);
 
@@ -1433,7 +1417,6 @@ H5Iget_type_ref(H5I_type_t type)
     int ret_value = -1; /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX((-1))
-    H5TRACE1("Is", "It", type);
 
     H5I__enter(TRUE);
 
@@ -1515,7 +1498,6 @@ H5Iis_valid(hid_t id)
     htri_t            ret_value = TRUE;        /* Return value */
 
     FUNC_ENTER_API_NO_MUTEX(FAIL)
-    H5TRACE1("t", "i", id);
 
     H5I__enter(TRUE);
 

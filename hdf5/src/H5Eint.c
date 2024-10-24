@@ -209,7 +209,7 @@ H5E_init(void)
     if (H5I_register_type(H5I_ERRSTK_CLS) < 0)
         HGOTO_ERROR(H5E_ID, H5E_CANTINIT, FAIL, "unable to initialize ID group");
 
-#ifndef H5_HAVE_THREADSAFE
+#if !defined(H5_HAVE_THREADSAFE) && !defined(H5_HAVE_MULTITHREAD)
     H5E__set_default_auto(H5E_stack_g);
 #endif /* H5_HAVE_THREADSAFE */
 
@@ -380,37 +380,37 @@ H5E__free_class(H5E_cls_t *cls)
     /* Check arguments */
     assert(cls);
 
-#ifdef H5_HAVE_MULTITHREAD
-    /* don't need to verify that we have the global mutext, as all
-     * calls to this function come from functions where this has
-     * already been verified.
-     */
-
-    /* Free error class structure */
-
-    free((void *)cls->cls_name);
-    cls->cls_name = NULL;
-
-    free((void *)cls->lib_name);
-    cls->lib_name = NULL;
-
-    free((void *)cls->lib_vers);
-    cls->lib_vers = NULL;
-
-    free((void *)cls);
-    cls = NULL;
-#else /* H5_HAVE_MULTITHREAD */
-
     /* Free resources, if application registered this class */
     if (cls->app_cls) {
+#ifdef H5_HAVE_MULTITHREAD
+        /* don't need to verify that we have the global mutext, as all
+         * calls to this function come from functions where this has
+         * already been verified.
+         */
+
+        /* Free error class structure */
+
+        free((void *)cls->cls_name);
+        cls->cls_name = NULL;
+
+        free((void *)cls->lib_name);
+        cls->lib_name = NULL;
+
+        free((void *)cls->lib_vers);
+        cls->lib_vers = NULL;
+
+        free((void *)cls);
+        cls = NULL;
+#else /* H5_HAVE_MULTITHREAD */
+
         /* Free error class structure */
         cls->cls_name = H5MM_xfree_const(cls->cls_name);
         cls->lib_name = H5MM_xfree_const(cls->lib_name);
         cls->lib_vers = H5MM_xfree_const(cls->lib_vers);
         cls           = H5FL_FREE(H5E_cls_t, cls);
-    }
 
 #endif /* H5_HAVE_MULTITHREAD */
+    }
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5E__free_class() */
@@ -743,7 +743,7 @@ H5E__close_msg(H5E_msg_t *err, void H5_ATTR_UNUSED **request)
     assert( 0 >= H5TS_have_mutex(&H5_g.init_lock, &have_global_mutex) );
     assert(have_global_mutex);
 
-#else /* H5_HAVE_MULTITHREAD */
+#endif /* H5_HAVE_MULTITHREAD */
 
     /* Free resources, if application registered this message */
     if (err->app_msg)

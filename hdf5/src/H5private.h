@@ -1343,7 +1343,7 @@ H5_DLL herr_t H5CX_pop(bool update_dxpl_props);
 #define FUNC_ENTER_API(err)                                                                                  \
     {                                                                                                        \
         {                                                                                                    \
-            bool_t api_ctx_pushed = false;                                                                   \
+            bool api_ctx_pushed = false;                                                                     \
                                                                                                              \
             FUNC_ENTER_API_COMMON                                                                            \
             FUNC_ENTER_API_THREADSAFE;                                                                       \
@@ -1373,7 +1373,7 @@ H5_DLL herr_t H5CX_pop(bool update_dxpl_props);
 #define FUNC_ENTER_API_NO_MUTEX(err)                                                                         \
     {                                                                                                        \
         {                                                                                                    \
-            bool_t api_ctx_pushed = false;                                                                   \
+            bool api_ctx_pushed = false;                                                                     \
                                                                                                              \
             FUNC_ENTER_API_COMMON                                                                            \
             FUNC_ENTER_API_THREADSAFE_NO_MUTEX;                                                              \
@@ -1411,7 +1411,7 @@ H5_DLL herr_t H5CX_pop(bool update_dxpl_props);
 #define FUNC_ENTER_API_NOCLEAR(err)                                                                          \
     {                                                                                                        \
         {                                                                                                    \
-            bool_t api_ctx_pushed = false;                                                                   \
+            bool api_ctx_pushed = false;                                                                     \
                                                                                                              \
             FUNC_ENTER_API_COMMON                                                                            \
             FUNC_ENTER_API_THREADSAFE;                                                                       \
@@ -1659,9 +1659,8 @@ H5_DLL herr_t H5CX_pop(bool update_dxpl_props);
         (void)H5CX_pop(TRUE);                                                                                \
         api_ctx_pushed = FALSE;                                                                              \
     }                                                                                                        \
-    H5_POP_FUNC                                                                                              \
     if (err_occurred)                                                                                        \
-        (void)H5E_dump_api_stack(TRUE);                                                                      \
+        (void)H5E_dump_api_stack();                                                                          \
     H5_API_UNLOCK                                                                                            \
     FUNC_LEAVE_API_THREADSAFE_NO_MUTEX                                                                       \
     return (ret_value);                                                                                      \
